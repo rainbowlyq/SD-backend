@@ -8,14 +8,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.util.*;
-@RequestMapping("/knowledge")
+@RequestMapping("/customer")
 @RestController
 public class CustomerController {
-    @Resource
-    CustomerService customerService;
-    @GetMapping("/findAll")
-    public List<Customer> test1() {
-        List<Customer> all=customerService.selectList(null);
-        return all;
-    }
+
 }
