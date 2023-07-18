@@ -1,7 +1,9 @@
 package com.packages.controller;
 
+import com.packages.entity.Customer;
 import com.packages.service.CustomerService;
 
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,5 +23,9 @@ public class CustomerController {
     @GetMapping("/getSearchCombination")
     public Map<String, List<Map<String, Object>>> getSearchCombination() {
         return customerService.getSearchCombination();
+    }
+    @GetMapping("/getCustomers")
+    public List<Customer> getCustomers(@RequestParam Map<String, String> params) {
+        return customerService.findAllCustomers(params);
     }
 }
