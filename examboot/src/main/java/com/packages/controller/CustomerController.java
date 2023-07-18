@@ -18,4 +18,8 @@ public class CustomerController {
     public List<Map<String, Object>> getDivisionCombination() {
         return customerService.divisionCombination();
     }
+    @GetMapping("/getSearchCombination")
+    public Map<String, List<Map<String, Object>>> getSearchCombination() {
+        return customerService.getSearchCombination();
+    }
 }
