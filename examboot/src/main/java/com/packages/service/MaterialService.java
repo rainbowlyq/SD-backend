@@ -23,17 +23,17 @@ public class MaterialService {
         this.materialMapper= materialMapper;
     }
     public Map<String, List<Map<String, Object>>> getSearchCombination(){
-        String sql1 = "SELECT DISTINCT bom_unit FROM material_sd" ;
-        String sql2 = "SELECT DISTINCT weight_unit FROM material_sd" ;
-        String sql3 = "SELECT DISTINCT del_stor_plant FROM material_sd" ;
+        String sql1 = "SELECT DISTINCT bom_unit bomUnit FROM material_sd" ;
+        String sql2 = "SELECT DISTINCT weight_unit weightUnit FROM material_sd" ;
+        String sql3 = "SELECT DISTINCT del_stor_plant delStorPlant FROM material_sd" ;
         RowMapper<Map<String, Object>> rowMapper = QueryUtils.genericRowMapper();
         List<Map<String, Object>> bom_unit =jdbcTemplate.query(sql1, rowMapper);
         List<Map<String, Object>> weight_unit= jdbcTemplate.query(sql2, rowMapper);
         List<Map<String, Object>> del_stor_plant= jdbcTemplate.query(sql3, rowMapper);
         Map<String, List<Map<String, Object>>> combinationMap = new HashMap<>();
-        combinationMap.put("bom_unit", bom_unit);
-        combinationMap.put("weight_unit", weight_unit);
-        combinationMap.put("del_stor_plant", del_stor_plant);
+        combinationMap.put("bomUnit", bom_unit);
+        combinationMap.put("weightUnit", weight_unit);
+        combinationMap.put("delStorPlant", del_stor_plant);
         return combinationMap;
     }
     public List<MaterialSd> findAllMaterials(Map<String, String> params) {
