@@ -23,9 +23,9 @@ public class MaterialService {
         this.materialMapper= materialMapper;
     }
     public Map<String, List<Map<String, Object>>> getSearchCombination(){
-        String sql1 = "SELECT DISTINCT bom_unit bomUnit FROM material_sd" ;
-        String sql2 = "SELECT DISTINCT weight_unit weightUnit FROM material_sd" ;
-        String sql3 = "SELECT DISTINCT del_stor_plant delStorPlant FROM material_sd" ;
+        String sql1 = "SELECT DISTINCT bomUnit bomUnit FROM material_sd" ;
+        String sql2 = "SELECT DISTINCT weightUnit weightUnit FROM material_sd" ;
+        String sql3 = "SELECT DISTINCT delStorPlant delStorPlant FROM material_sd" ;
         RowMapper<Map<String, Object>> rowMapper = QueryUtils.genericRowMapper();
         List<Map<String, Object>> bom_unit =jdbcTemplate.query(sql1, rowMapper);
         List<Map<String, Object>> weight_unit= jdbcTemplate.query(sql2, rowMapper);

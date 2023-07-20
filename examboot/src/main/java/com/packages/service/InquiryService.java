@@ -51,4 +51,14 @@ public class InquiryService{
         return jdbcTemplate.query(sql, new Object[] { inqid }, rowMapper);
     }
 
+    public List<Map<String, Object>> findInquiryItemByInqid(String inqid) {
+        String sql = "SELECT e.*, m.* FROM inquiry i " +
+                "INNER JOIN inquire e ON i.inqid = e.inqid " +
+                "INNER JOIN material_sd m ON e.matid = m.msdId " +
+                "WHERE i.inqid = ?";
+        RowMapper<Map<String, Object>> rowMapper = QueryUtils.genericRowMapper();
+        List<Map<String, Object>> result = jdbcTemplate.query(sql, new Object[]{inqid}, rowMapper);
+        return result;
+    }
+
 }

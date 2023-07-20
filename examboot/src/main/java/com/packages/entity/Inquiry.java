@@ -18,4 +18,5 @@ public class Inquiry {
     private Integer expordvalue;
     private String currency;
     private Integer weight;
+    private Integer isrefed;
 }

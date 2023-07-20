@@ -32,4 +32,8 @@ public class InquiryController {
     public List<Map<String, Object>> testJDBC(@RequestParam("inqid") String inqid) {
         return inquiryService.testJDBC(inqid);
     }
+    @GetMapping("/getInquiryItem")
+    public List<Map<String, Object>> getInquiryItem(@RequestParam("inqid") String inqid) {
+        return inquiryService.findInquiryItemByInqid(inqid);
+    }
 }

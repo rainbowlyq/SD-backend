@@ -4,19 +4,19 @@ import lombok.Data;
 @Data
 public class MaterialSd {
     @TableId
-    private Integer msdId;
+    private Integer msdid;
     private String mid;
-    private String salesOrg;
-    private String distrChannel;
+    private String salesorg;
+    private String distrchannel;
     private String currency;
     private Double price;
     private String division;
-    private String delStorPlant;
-    private String storageLoc;
+    private String delstorplant;
+    private String storageloc;
     private String descrp;
-    private String bomUnit;
+    private String bomunit;
     private Double weight;
-    private String weightUnit;
+    private String weightunit;
     private String category;
     private String mtype;
 }
