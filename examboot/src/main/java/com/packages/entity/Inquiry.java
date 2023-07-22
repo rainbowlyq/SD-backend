@@ -1,11 +1,12 @@
 package com.packages.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 @Data
 public class Inquiry {
-    @TableId
-    private String inqid;
+    @TableId(type = IdType.AUTO)
+    private Integer inqid;
     private String sorg;
     private String dischannel;
     private String division;

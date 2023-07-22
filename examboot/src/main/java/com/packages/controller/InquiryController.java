@@ -1,5 +1,6 @@
 package com.packages.controller;
 
+import com.packages.entity.Inquire;
 import com.packages.entity.Inquiry;
 import com.packages.service.InquiryService;
 import org.springframework.util.MultiValueMap;
@@ -27,7 +28,19 @@ public class InquiryController {
     public int update(@RequestBody Inquiry inquiry) {
         return inquiryService.updateInquiry(inquiry);
     }
+    @PostMapping("/insert")
+    public int insert(@RequestBody Inquiry inquiry) {
+        return inquiryService.insertInquiry(inquiry);
+    }
 
+    @PostMapping("/updateItem")
+    public int updateItem(@RequestBody List<Inquire> inquires) {
+        return inquiryService.updateInquire(inquires);
+    }
+    @PostMapping("/insertItem")
+    public int insertItem(@RequestBody List<Inquire> inquires) {
+        return inquiryService.insertInquire(inquires);
+    }
     @GetMapping("/testJDBC")
     public List<Map<String, Object>> testJDBC(@RequestParam("inqid") String inqid) {
         return inquiryService.testJDBC(inqid);
