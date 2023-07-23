@@ -49,4 +49,12 @@ public class InquiryController {
     public List<Map<String, Object>> getInquiryItem(@RequestParam("inqid") String inqid) {
         return inquiryService.findInquiryItemByInqid(inqid);
     }
+    @GetMapping("/setIsRefed")
+    public int setIsRefed(@RequestParam("inqid") String inqid) {
+        return inquiryService.setIsRefed(inqid);
+    }
+    @GetMapping("/getSearchCombination")
+    public Map<String, List<Map<String, Object>>>  getSearchCombination() {
+        return inquiryService.getSearchCombination();
+    }
 }

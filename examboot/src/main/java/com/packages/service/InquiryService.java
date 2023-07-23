@@ -12,6 +12,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,7 +34,8 @@ public class InquiryService{
         for (Map.Entry<String, List<String>> entry : params.entrySet()) {
             String paramName = entry.getKey();
             List<String> paramValues = entry.getValue();
-            queryWrapper.in(paramName, paramValues.toArray());
+            if(paramValues.size()>0 && paramValues.get(0)!=""){
+            queryWrapper.in(paramName, paramValues.toArray());}
         }
         return inquiryMapper.selectList(queryWrapper);
     }
@@ -90,6 +92,27 @@ public class InquiryService{
         RowMapper<Map<String, Object>> rowMapper = QueryUtils.genericRowMapper();
         List<Map<String, Object>> result = jdbcTemplate.query(sql, new Object[]{inqid}, rowMapper);
         return result;
+    }
+    public int setIsRefed(String inqid) {
+        Inquiry inquiry = new Inquiry();
+        inquiry.setIsrefed(1); // 设置 refer 列的值为 1
+        UpdateWrapper<Inquiry> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("inqid", inqid); // 设置更新条件为 id = 指定值
+        return inquiryMapper.update(inquiry, updateWrapper);
+    }
+    public Map<String, List<Map<String, Object>>> getSearchCombination(){
+        String sql1 = "SELECT DISTINCT sorg FROM inquiry" ;
+        String sql2 = "SELECT DISTINCT dischannel FROM inquiry" ;
+        String sql3 = "SELECT DISTINCT division FROM inquiry" ;
+        RowMapper<Map<String, Object>> rowMapper = QueryUtils.genericRowMapper();
+        List<Map<String, Object>> sorg =jdbcTemplate.query(sql1, rowMapper);
+        List<Map<String, Object>> dischannel= jdbcTemplate.query(sql2, rowMapper);
+        List<Map<String, Object>> division= jdbcTemplate.query(sql3, rowMapper);
+        Map<String, List<Map<String, Object>>> combinationMap = new HashMap<>();
+        combinationMap.put("sorg",sorg);
+        combinationMap.put("dischannel", dischannel);
+        combinationMap.put("division", division);
+        return combinationMap;
     }
 
 }
