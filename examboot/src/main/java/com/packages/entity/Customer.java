@@ -1,12 +1,13 @@
 package com.packages.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 @Data
 public class Customer {
-    @TableId
-    private String bp;
-    private String bpId;
+    @TableId(type = IdType.AUTO)
+    private Integer bp;
+    private Integer bpId;
     private String srchterm;
     private Integer sortKey;
     private String currency;

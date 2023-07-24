@@ -1,13 +1,11 @@
 package com.packages.controller;
 
 import com.packages.entity.Customer;
+import com.packages.entity.Inquiry;
 import com.packages.service.CustomerService;
 
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import com.packages.service.ContactPersonService;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -16,6 +14,7 @@ import java.util.*;
 public class CustomerController {
     @Resource
     private CustomerService customerService;
+    private ContactPersonService personService;
     @GetMapping("/getDivisionCombination")
     public List<Map<String, Object>> getDivisionCombination() {
         return customerService.divisionCombination();
@@ -27,5 +26,9 @@ public class CustomerController {
     @GetMapping("/getCustomers")
     public List<Customer> getCustomers(@RequestParam Map<String, String> params) {
         return customerService.findAllCustomers(params);
+    }
+    @PostMapping("/insert")
+    public int insert(@RequestBody Customer customer) {
+        return customerService.insertcustomer(customer);
     }
 }
