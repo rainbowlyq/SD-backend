@@ -10,6 +10,7 @@ import com.packages.mapper.InquireMapper;
 import com.packages.mapper.InquiryMapper;
 import com.packages.mapper.QuotateMapper;
 import com.packages.mapper.QuotationMapper;
+import com.packages.utils.DateFormat;
 import com.packages.utils.QueryUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -52,6 +53,7 @@ public class QuotationService{
         return quotationMapper.update(quotation, updateWrapper);
     }
     public int insertQuotation(Quotation quotation) {
+        quotation.setCreatedate(DateFormat.getTimeNow());
         int rowsAffected = quotationMapper.insert(quotation);
         if (rowsAffected > 0) {
             return quotation.getQuoid(); // 返回插入后生成的id

@@ -22,5 +22,6 @@ public class Quotation {
     private Integer weight;
     private Integer refinqid;
     private Integer isrefed;
+    private String createdate;
 }
 

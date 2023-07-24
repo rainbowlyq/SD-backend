@@ -7,6 +7,7 @@ import com.packages.entity.Inquiry;
 import com.packages.mapper.InquireMapper;
 import com.packages.mapper.InquiryMapper;
 import com.packages.utils.QueryUtils;
+import com.packages.utils.DateFormat;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
@@ -50,6 +51,7 @@ public class InquiryService{
         return inquiryMapper.update(inquiry, updateWrapper);
     }
     public int insertInquiry(Inquiry inquiry) {
+        inquiry.setCreatedate(DateFormat.getTimeNow());
         int rowsAffected = inquiryMapper.insert(inquiry);
         if (rowsAffected > 0) {
             return inquiry.getInqid(); // 返回插入后生成的id
