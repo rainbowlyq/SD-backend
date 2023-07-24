@@ -73,9 +73,27 @@ public class ChartService {
                 ")\n" +
                 "SELECT \n" +
                 "    months.month,\n" +
-                "    COALESCE(sales_order_count, 0) AS sales_order_count\n" +
+                "    COALESCE(inquiry_count, 0) AS inquiry_count,\n" +
+                "    COALESCE(quotation_count, 0) AS quotation_count,\n" +
+                "    COALESCE(sales_order_count, 0) AS salesorder_count\n" +
                 "FROM \n" +
                 "    months\n" +
+                "LEFT JOIN\n" +
+                "    (\n" +
+                "        SELECT DATE_FORMAT(createdate, '%Y-%m') AS month, COUNT(*) AS inquiry_count\n" +
+                "        FROM inquiry\n" +
+                "        WHERE createdate >= DATE_ADD(NOW(), INTERVAL -12 MONTH) AND createdate < DATE_ADD(NOW(), INTERVAL 1 MONTH)\n" +
+                "        GROUP BY DATE_FORMAT(createdate, '%Y-%m')\n" +
+                "    ) AS inquiry_table\n" +
+                "ON months.month = inquiry_table.month\n" +
+                "LEFT JOIN\n" +
+                "    (\n" +
+                "        SELECT DATE_FORMAT(createdate, '%Y-%m') AS month, COUNT(*) AS quotation_count\n" +
+                "        FROM quotation\n" +
+                "        WHERE createdate >= DATE_ADD(NOW(), INTERVAL -12 MONTH) AND createdate < DATE_ADD(NOW(), INTERVAL 1 MONTH)\n" +
+                "        GROUP BY DATE_FORMAT(createdate, '%Y-%m')\n" +
+                "    ) AS quotation_table\n" +
+                "ON months.month = quotation_table.month\n" +
                 "LEFT JOIN\n" +
                 "    (\n" +
                 "        SELECT DATE_FORMAT(createdate, '%Y-%m') AS month, COUNT(*) AS sales_order_count\n" +
