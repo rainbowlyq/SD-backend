@@ -1,6 +1,8 @@
 package com.packages.controller;
 
 
+import com.packages.entity.Doccondition;
+import com.packages.entity.Itemcondition;
 import com.packages.entity.Quotate;
 import com.packages.entity.Quotation;
 import com.packages.service.QuotationService;
@@ -50,5 +52,29 @@ public class QuotationController {
     @GetMapping("/getQuotationItem")
     public List<Map<String, Object>> getQuotationItem(@RequestParam("quoid") String quoid) {
         return quotationService.findQuotationItemByQuoid(quoid);
+    }
+    @PostMapping("/insertItemCondition")
+    public int insertItemCondition(@RequestBody List<Itemcondition> itemconditions) {
+        return quotationService.insertItemCondition(itemconditions);
+    }
+    @PostMapping("/updateItemCondition")
+    public int updateItemCondition(@RequestBody List<Itemcondition> itemconditions) {
+        return quotationService.updateItemCondition(itemconditions);
+    }
+    @GetMapping("/getItemCondition")
+    public List<Itemcondition> getItemCondition(@RequestParam("docid") String docid) {
+        return quotationService.findItemCondition(docid);
+    }
+    @PostMapping("/insertDocCondition")
+    public int insertDocCondition(@RequestBody List< Doccondition > docconditions) {
+        return quotationService.insertDocCondition(docconditions);
+    }
+    @PostMapping("/updateDocCondition")
+    public int updateDocCondition(@RequestBody List< Doccondition > docconditions) {
+        return quotationService.updateDocCondition(docconditions);
+    }
+    @GetMapping("/getDocCondition")
+    public List< Doccondition>  getDocCondition(@RequestParam("docid") String docid) {
+        return quotationService.findDocCondition(docid);
     }
 }

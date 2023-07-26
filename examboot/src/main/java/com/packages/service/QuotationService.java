@@ -2,12 +2,12 @@ package com.packages.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.packages.entity.Inquire;
+import com.packages.entity.Doccondition;
+import com.packages.entity.Itemcondition;
 import com.packages.entity.Quotate;
-import com.packages.entity.Inquiry;
 import com.packages.entity.Quotation;
-import com.packages.mapper.InquireMapper;
-import com.packages.mapper.InquiryMapper;
+import com.packages.mapper.DocconditionMapper;
+import com.packages.mapper.ItemconditionMapper;
 import com.packages.mapper.QuotateMapper;
 import com.packages.mapper.QuotationMapper;
 import com.packages.utils.DateFormat;
@@ -25,10 +25,14 @@ public class QuotationService{
     private final JdbcTemplate jdbcTemplate;
     private final QuotationMapper quotationMapper;
     private final QuotateMapper quotateMapper;
-    public QuotationService(JdbcTemplate jdbcTemplate, QuotationMapper quotationMapper,QuotateMapper quotateMapper) {
+    private final ItemconditionMapper itemconditionMapper;
+    private final DocconditionMapper docconditionMapper;
+    public QuotationService(JdbcTemplate jdbcTemplate, QuotationMapper quotationMapper,QuotateMapper quotateMapper,ItemconditionMapper itemconditionMapper,DocconditionMapper docconditionMapper) {
         this.jdbcTemplate = jdbcTemplate;
         this.quotationMapper = quotationMapper;
         this.quotateMapper=quotateMapper;
+        this.itemconditionMapper=itemconditionMapper;
+        this.docconditionMapper=docconditionMapper;
     }
 
     public List<Quotation> findAllQuotations(MultiValueMap<String, String> params) {
@@ -96,6 +100,51 @@ public class QuotationService{
         RowMapper<Map<String, Object>> rowMapper = QueryUtils.genericRowMapper();
         List<Map<String, Object>> result = jdbcTemplate.query(sql, new Object[]{quoid}, rowMapper);
         return result;
+    }
+    public int insertItemCondition(List<Itemcondition> itemconditions) {
+        int count=0;
+        for (Itemcondition itemcondition : itemconditions) {
+            count+=itemconditionMapper.insert(itemcondition);
+        }
+        return count;
+    }
+    public List<Itemcondition> findItemCondition(String docid) {
+        QueryWrapper<Itemcondition> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("docid", docid);
+        return itemconditionMapper.selectList(queryWrapper);
+    }
+    public int updateItemCondition(List<Itemcondition> itemconditions) {
+        int count=0;
+        for (Itemcondition itemcondition : itemconditions) {
+            UpdateWrapper<Itemcondition> updateWrapper = new UpdateWrapper<>();
+            updateWrapper.eq("docid", itemcondition.getDocid());
+            updateWrapper.eq("matid", itemcondition.getMatid());
+            updateWrapper.eq("contype", itemcondition.getContype());
+            count+=itemconditionMapper.update(itemcondition, updateWrapper);
+        }
+        return count;
+    }
+    public int insertDocCondition(List<Doccondition> docconditions) {
+        int count=0;
+        for (Doccondition doccondition : docconditions) {
+            count+=docconditionMapper.insert(doccondition);
+        }
+        return count;
+    }
+    public List<Doccondition> findDocCondition(String docid) {
+        QueryWrapper<Doccondition> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("docid", docid);
+        return docconditionMapper.selectList(queryWrapper);
+    }
+    public int updateDocCondition(List<Doccondition> docconditions) {
+        int count=0;
+        for (Doccondition doccondition : docconditions) {
+            UpdateWrapper<Doccondition> updateWrapper = new UpdateWrapper<>();
+            updateWrapper.eq("docid", doccondition.getDocid());
+            updateWrapper.eq("contype", doccondition.getContype());
+            count+=docconditionMapper.update(doccondition, updateWrapper);
+        }
+        return count;
     }
 
 }
