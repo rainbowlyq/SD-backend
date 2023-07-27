@@ -8,12 +8,12 @@ public class ContactPerson {
     @TableId(type = IdType.AUTO)
     private Integer personId;
     private String title;
-    private String first_name;
-    private String last_name;
-    private String correspondence_lang;
+    private String firstName;
+    private String lastName;
+    private String correspondenceLang;
     private String srchterm;
     private String street;
-    private Integer postal_code;
+    private Integer postalCode;
     private String country;
     private String region;
 }
