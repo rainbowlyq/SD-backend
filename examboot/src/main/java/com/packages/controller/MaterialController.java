@@ -3,6 +3,7 @@ package com.packages.controller;
 import com.packages.entity.Customer;
 import com.packages.entity.MaterialSd;
 import com.packages.entity.Relationship;
+import com.packages.entity.Storage;
 import com.packages.service.MaterialService;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,11 +13,13 @@ import javax.servlet.http.HttpSession;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
+
 @RequestMapping("/material")
 @RestController
 public class MaterialController {
     @Resource
     private MaterialService materialService;
+
     @GetMapping("/getSearchCombination")
     public Map<String, List<Map<String, Object>>> getSearchCombination() {
         return materialService.getSearchCombination();
@@ -43,11 +46,14 @@ public class MaterialController {
 //],
 
     @PostMapping("/updateStorage")
-    public int updateStorage(HttpServletRequest request, @RequestParam("time") String time, @RequestParam("tableData") List<Map<String, String>> MI) throws ParseException {
+    public int updateStorage(HttpServletRequest request, @RequestBody Storage storage) throws ParseException {
         HttpSession session = request.getSession();
-        int uid = (int) session.getAttribute("uid");
-        uid = 1;//登录做完得删掉
-        return materialService.updateStorage(time,MI,uid);
+//        int uid = (int) session.getAttribute("uid");
+        int uid = 1;//登录做完得删掉
+        String time = storage.getTime();
+        List<Map<String, String>> tableData = storage.getTableData();
+        System.out.println(tableData);
+        return materialService.updateStorage(time, tableData, uid);
     }
 
     @GetMapping("/updateStorage")
