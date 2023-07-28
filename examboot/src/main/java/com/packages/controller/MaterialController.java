@@ -49,4 +49,9 @@ public class MaterialController {
         uid = 1;//登录做完得删掉
         return materialService.updateStorage(time,MI,uid);
     }
+
+    @GetMapping("/updateStorage")
+    public List<Map<String, String>> searchStorage( @RequestParam("mid") int mid, @RequestParam("plant") String plant ) throws ParseException {
+        return materialService.searchStorage(mid,plant);
+    }
 }
