@@ -2,11 +2,9 @@ package com.packages.controller;
 
 import com.packages.entity.Customer;
 import com.packages.entity.MaterialSd;
+import com.packages.entity.Relationship;
 import com.packages.service.MaterialService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -24,5 +22,15 @@ public class MaterialController {
     @GetMapping("/getMaterials")
     public List<MaterialSd> getMaterials(@RequestParam Map<String, String> params) {
         return materialService.findAllMaterials(params);
+    }
+
+    @PostMapping("/insertMaterials")
+    public int insertMaterials(@RequestBody MaterialSd MaterialSd) {
+        return materialService.insertMaterials(MaterialSd);
+    }
+
+    @PostMapping("/updateMaterials")
+    public int updateMaterials(@RequestBody MaterialSd MaterialSd) {
+        return materialService.updateMaterials(MaterialSd);
     }
 }

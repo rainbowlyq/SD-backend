@@ -3,6 +3,7 @@ package com.packages.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.packages.entity.Customer;
 import com.packages.entity.MaterialSd;
+import com.packages.entity.Relationship;
 import com.packages.mapper.CustomerMapper;
 import com.packages.mapper.MaterialMapper;
 import com.packages.utils.QueryUtils;
@@ -47,5 +48,23 @@ public class MaterialService {
             }
         }
         return materialMapper.selectList(queryWrapper);
+    }
+
+    public int insertMaterials(MaterialSd MaterialSd) {
+        int rowsAffected = materialMapper.insert(MaterialSd);
+        if (rowsAffected > 0) {
+            return 1; // 成功
+        } else {
+            return -1; // 或者根据需求返回其他表示插入失败的值
+        }
+    }
+
+    public int updateMaterials(MaterialSd MaterialSd) {
+        int rowsAffected = materialMapper.updateById(MaterialSd);
+        if (rowsAffected > 0) {
+            return 1; // 成功
+        } else {
+            return -1; // 或者根据需求返回其他表示插入失败的值
+        }
     }
 }
