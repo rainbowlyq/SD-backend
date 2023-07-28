@@ -2,10 +2,7 @@ package com.packages.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.packages.entity.Doccondition;
-import com.packages.entity.Itemcondition;
-import com.packages.entity.Quotate;
-import com.packages.entity.Quotation;
+import com.packages.entity.*;
 import com.packages.mapper.DocconditionMapper;
 import com.packages.mapper.ItemconditionMapper;
 import com.packages.mapper.QuotateMapper;
@@ -17,6 +14,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,7 +40,8 @@ public class QuotationService{
         for (Map.Entry<String, List<String>> entry : params.entrySet()) {
             String paramName = entry.getKey();
             List<String> paramValues = entry.getValue();
-            queryWrapper.in(paramName, paramValues.toArray());
+            if(paramValues.size()>0 && paramValues.get(0)!=""){
+                queryWrapper.in(paramName, paramValues.toArray());}
         }
         return quotationMapper.selectList(queryWrapper);
     }
@@ -146,5 +145,25 @@ public class QuotationService{
         }
         return count;
     }
-
+    public int setIsRefed(String quoid) {
+        Quotation quotation = new Quotation();
+        quotation.setIsrefed(1); // 设置 refer 列的值为 1
+        UpdateWrapper<Quotation> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("quoid", quoid); // 设置更新条件为 id = 指定值
+        return quotationMapper.update(quotation, updateWrapper);
+    }
+    public Map<String, List<Map<String, Object>>> getSearchCombination(){
+        String sql1 = "SELECT DISTINCT sorg FROM quotation" ;
+        String sql2 = "SELECT DISTINCT dischannel FROM quotation" ;
+        String sql3 = "SELECT DISTINCT division FROM quotation" ;
+        RowMapper<Map<String, Object>> rowMapper = QueryUtils.genericRowMapper();
+        List<Map<String, Object>> sorg =jdbcTemplate.query(sql1, rowMapper);
+        List<Map<String, Object>> dischannel= jdbcTemplate.query(sql2, rowMapper);
+        List<Map<String, Object>> division= jdbcTemplate.query(sql3, rowMapper);
+        Map<String, List<Map<String, Object>>> combinationMap = new HashMap<>();
+        combinationMap.put("sorg",sorg);
+        combinationMap.put("dischannel", dischannel);
+        combinationMap.put("division", division);
+        return combinationMap;
+    }
 }

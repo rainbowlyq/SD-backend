@@ -77,4 +77,12 @@ public class QuotationController {
     public List< Doccondition>  getDocCondition(@RequestParam("docid") String docid) {
         return quotationService.findDocCondition(docid);
     }
+    @GetMapping("/setIsRefed")
+    public int setIsRefed(@RequestParam("quoid") String quoid) {
+        return quotationService.setIsRefed(quoid);
+    }
+    @GetMapping("/getSearchCombination")
+    public Map<String, List<Map<String, Object>>>  getSearchCombination() {
+        return quotationService.getSearchCombination();
+    }
 }
