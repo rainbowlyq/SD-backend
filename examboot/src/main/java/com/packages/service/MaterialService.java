@@ -11,9 +11,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Service
 public class MaterialService {
@@ -72,11 +72,33 @@ public class MaterialService {
 //tableData: [
 //{Material: '', Quantity: null, Plant: '', SLoc: ''},
 //],
-    public int updateStorage(String time,List<Map<String, String>> MI) {
+    public int updateStorage(String time,List<Map<String, String>> MI,int uid) throws ParseException {
+        String pattern = "yyyy-MM-dd HH:mm:ss";
+        String timezone = "GMT+8";
+        SimpleDateFormat sdf = new SimpleDateFormat(pattern);
+        sdf.setTimeZone(TimeZone.getTimeZone(timezone));
+        Date date = sdf.parse(time);
         for (Map<String, String> mi : MI){
             String material = mi.get("Material");
-
+            int quantity = Integer.parseInt(mi.get("Quantity"));
+            String plant = mi.get("Plant");
+            String sLoc = mi.get("SLoc");
+            String sql = "INSERT INTO confirmreceipt(uid,mid,plant,StorageLoc,amount,time) values(?,?,?,?,?,?)";
+            int rowsAffected1 = jdbcTemplate.update(sql, uid,material, plant, sLoc, quantity, date);
+            //如果SQL语句执行失败（例如语法错误或约束冲突等），返回值通常为0。
+            if (rowsAffected1 == 0){
+                return -1;
+            }
+            String sql1 = "SELECT Unrestricted FROM materialinventory WHERE Mid=? AND Plant=? AND StorageLoc=?";
+            int oquantity = jdbcTemplate.queryForObject(sql1, Integer.class, material, plant, sLoc);
+            int nquantity = oquantity + quantity;
+            String sql2 = "UPDATE materialinventory\n" +
+                    "SET Unrestricted = ?\n" +
+                    "WHERE Mid=? AND Plant=? AND StorageLoc=?";
+            int rowsAffected2 = jdbcTemplate.update(sql2,nquantity);
         }
+
+        return 1;
     }
 
 }

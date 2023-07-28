@@ -7,6 +7,9 @@ import com.packages.service.MaterialService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 @RequestMapping("/material")
@@ -38,8 +41,12 @@ public class MaterialController {
 //tableData: [
 //{Material: '', Quantity: null, Plant: '', SLoc: ''},
 //],
+
     @PostMapping("/updateStorage")
-    public int updateStorage(@RequestParam("time") String time, @RequestParam("tableData") List<Map<String, Object>> MI) {
-        return materialService.updateStorage(time,MI);
+    public int updateStorage(HttpServletRequest request, @RequestParam("time") String time, @RequestParam("tableData") List<Map<String, String>> MI) throws ParseException {
+        HttpSession session = request.getSession();
+        int uid = (int) session.getAttribute("uid");
+        uid = 1;//登录做完得删掉
+        return materialService.updateStorage(time,MI,uid);
     }
 }
