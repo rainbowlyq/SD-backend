@@ -74,7 +74,7 @@ public class MaterialService {
 //tableData: [
 //{Material: '', Quantity: null, Plant: '', SLoc: ''},
 //],
-    public int updateStorage(String time,List<Map<String, String>> MI,int uid) throws ParseException {
+    public int updateStorage(String time, @NotNull List<Map<String, String>> MI, int uid) throws ParseException {
         String pattern = "yyyy-MM-dd HH:mm:ss";
         String timezone = "GMT+8";
         SimpleDateFormat sdf = new SimpleDateFormat(pattern);
@@ -101,6 +101,21 @@ public class MaterialService {
         }
 
         return 1;
+    }
+
+    public List<Map<String, String>> searchStorage(int mid, String plant){
+        String sql1 = "SELECT DISTINCT bomUnit bomUnit FROM material_sd" ;
+        String sql2 = "SELECT DISTINCT weightUnit weightUnit FROM material_sd" ;
+        String sql3 = "SELECT DISTINCT delStorPlant delStorPlant FROM material_sd" ;
+        RowMapper<Map<String, Object>> rowMapper = QueryUtils.genericRowMapper();
+        List<Map<String, Object>> bom_unit =jdbcTemplate.query(sql1, rowMapper);
+        List<Map<String, Object>> weight_unit= jdbcTemplate.query(sql2, rowMapper);
+        List<Map<String, Object>> del_stor_plant= jdbcTemplate.query(sql3, rowMapper);
+        Map<String, List<Map<String, Object>>> combinationMap = new HashMap<>();
+        combinationMap.put("bomUnit", bom_unit);
+        combinationMap.put("weightUnit", weight_unit);
+        combinationMap.put("delStorPlant", del_stor_plant);
+        return ;
     }
 
 }
