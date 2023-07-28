@@ -2,6 +2,7 @@ package com.packages.controller;
 
 import com.packages.entity.Customer;
 import com.packages.entity.Inquiry;
+import com.packages.entity.MaterialSd;
 import com.packages.service.CustomerService;
 
 import com.packages.service.ContactPersonService;
@@ -31,4 +32,10 @@ public class CustomerController {
     public int insert(@RequestBody Customer customer) {
         return customerService.insertcustomer(customer);
     }
+
+    @PostMapping("/update")
+    public int updateCustomer(@RequestBody Customer Customer) {
+        return customerService.updateCustomer(Customer);
+    }
 }
+

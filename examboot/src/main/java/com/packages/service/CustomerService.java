@@ -2,6 +2,7 @@ package com.packages.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.packages.entity.Customer;
 import com.packages.entity.Inquiry;
+import com.packages.entity.MaterialSd;
 import com.packages.mapper.ContactPersonMapper;
 import com.packages.mapper.CustomerMapper;
 import com.packages.mapper.InquiryMapper;
@@ -62,6 +63,15 @@ public class CustomerService{
         int rowsAffected = customerMapper.insert(customer);
         if (rowsAffected > 0) {
             return customer.getBp(); // 返回插入后生成的id
+        } else {
+            return -1; // 或者根据需求返回其他表示插入失败的值
+        }
+    }
+
+    public int updateCustomer(Customer Customer) {
+        int rowsAffected = customerMapper.updateById(Customer);
+        if (rowsAffected > 0) {
+            return 1; // 成功
         } else {
             return -1; // 或者根据需求返回其他表示插入失败的值
         }

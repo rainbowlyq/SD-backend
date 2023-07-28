@@ -2,6 +2,7 @@ package com.packages.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.packages.entity.ContactPerson;
 import com.packages.entity.Customer;
+import com.packages.entity.MaterialSd;
 import com.packages.mapper.ContactPersonMapper;
 import com.packages.utils.QueryUtils;
 import org.apache.ibatis.annotations.Param;
@@ -47,6 +48,15 @@ public class ContactPersonService {
         int rowsAffected = contactPersonMapper.insert(ContactPerson);
         if (rowsAffected > 0) {
             return ContactPerson.getPersonId(); // 返回插入后生成的id
+        } else {
+            return -1; // 或者根据需求返回其他表示插入失败的值
+        }
+    }
+
+    public int updateContactPerson(ContactPerson ContactPerson) {
+        int rowsAffected = contactPersonMapper.updateById(ContactPerson);
+        if (rowsAffected > 0) {
+            return 1; // 成功
         } else {
             return -1; // 或者根据需求返回其他表示插入失败的值
         }

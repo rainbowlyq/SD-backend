@@ -33,4 +33,13 @@ public class MaterialController {
     public int updateMaterials(@RequestBody MaterialSd MaterialSd) {
         return materialService.updateMaterials(MaterialSd);
     }
+
+    //    time: '',
+//tableData: [
+//{Material: '', Quantity: null, Plant: '', SLoc: ''},
+//],
+    @PostMapping("/updateStorage")
+    public int updateStorage(@RequestParam("time") String time, @RequestParam("tableData") List<Map<String, Object>> MI) {
+        return materialService.updateStorage(time,MI);
+    }
 }

@@ -2,6 +2,7 @@ package com.packages.controller;
 
 import com.packages.entity.ContactPerson;
 import com.packages.entity.Customer;
+import com.packages.entity.MaterialSd;
 import com.packages.service.ContactPersonService;
 
 import org.springframework.web.bind.annotation.*;
@@ -26,5 +27,9 @@ public class ContactPersonCotroller {
     @PostMapping("/insert")
     public int insert(@RequestBody ContactPerson ContactPerson) {
         return contactPersonService.insertcontactPerson(ContactPerson);
+    }
+    @PostMapping("/update")
+    public int updateContactPerson(@RequestBody ContactPerson ContactPerson) {
+        return contactPersonService.updateContactPerson(ContactPerson);
     }
 }

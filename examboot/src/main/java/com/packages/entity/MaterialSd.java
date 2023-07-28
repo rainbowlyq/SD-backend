@@ -1,9 +1,10 @@
 package com.packages.entity;
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 @Data
 public class MaterialSd {
-    @TableId
+    @TableId(type = IdType.AUTO)
     private Integer msdid;
     private String mid;
     private String salesorg;

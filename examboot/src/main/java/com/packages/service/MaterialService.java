@@ -67,4 +67,16 @@ public class MaterialService {
             return -1; // 或者根据需求返回其他表示插入失败的值
         }
     }
+
+//    time: '',
+//tableData: [
+//{Material: '', Quantity: null, Plant: '', SLoc: ''},
+//],
+    public int updateStorage(String time,List<Map<String, String>> MI) {
+        for (Map<String, String> mi : MI){
+            String material = mi.get("Material");
+
+        }
+    }
+
 }
