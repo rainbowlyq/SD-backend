@@ -10,6 +10,7 @@ import com.packages.utils.QueryUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -51,6 +52,11 @@ public class MaterialService {
             }
         }
         return materialMapper.selectList(queryWrapper);
+    }
+
+    public String getMid(String mid, String SalesOrg, String DistrChannel) {
+        String sql1 = "SELECT mid FROM material_sd WHERE mid LIKE ? AND salesorg=? AND distrchannel=?";
+        return jdbcTemplate.queryForObject(sql1, String.class, "%" + mid + "%", SalesOrg, DistrChannel);
     }
 
     public int insertMaterials(MaterialSd MaterialSd) {

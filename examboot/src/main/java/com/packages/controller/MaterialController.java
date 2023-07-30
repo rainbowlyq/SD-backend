@@ -29,6 +29,10 @@ public class MaterialController {
     public List<MaterialSd> getMaterials(@RequestParam Map<String, String> params) {
         return materialService.findAllMaterials(params);
     }
+    @GetMapping("/getmid")
+    public String getMid(@RequestParam("mid") String mid, @RequestParam("SalesOrg") String SalesOrg, @RequestParam("DistrChannel") String DistrChannel) {
+        return materialService.getMid(mid,SalesOrg,DistrChannel);
+    }
 
     @PostMapping("/insertMaterials")
     public int insertMaterials(@RequestBody MaterialSd MaterialSd) {
