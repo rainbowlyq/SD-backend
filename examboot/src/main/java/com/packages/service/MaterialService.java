@@ -54,9 +54,9 @@ public class MaterialService {
         return materialMapper.selectList(queryWrapper);
     }
 
-    public String getMid(String mid, String SalesOrg, String DistrChannel) {
+    public List<String> getMid(String mid, String SalesOrg, String DistrChannel) {
         String sql1 = "SELECT mid FROM material_sd WHERE mid LIKE ? AND salesorg=? AND distrchannel=?";
-        return jdbcTemplate.queryForObject(sql1, String.class, "%" + mid + "%", SalesOrg, DistrChannel);
+        return jdbcTemplate.queryForObject(sql1, List.class, "%" + mid + "%", SalesOrg, DistrChannel);
     }
 
     public int insertMaterials(MaterialSd MaterialSd) {
@@ -113,6 +113,10 @@ public class MaterialService {
         return 1;
     }
 
+    public List<Map<String, String>> alertStorage(){
+
+        return null;
+    }
     public List<Map<String, String>> searchStorage(String mid,String plant){
         System.out.println(mid);
         System.out.println(plant);
