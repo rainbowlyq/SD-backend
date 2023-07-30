@@ -56,8 +56,8 @@ public class MaterialController {
         return materialService.updateStorage(time, tableData, uid);
     }
 
-    @GetMapping("/updateStorage")
-    public List<Map<String, String>> searchStorage( @RequestParam("mid") int mid, @RequestParam("plant") String plant ) throws ParseException {
+    @GetMapping("/searchStorage")
+    public List<Map<String, String>> searchStorage( @RequestParam("mid") String mid, @RequestParam("plant") String plant ) throws ParseException {
         return materialService.searchStorage(mid,plant);
     }
 }
