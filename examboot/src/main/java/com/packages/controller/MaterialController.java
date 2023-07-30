@@ -64,7 +64,7 @@ public class MaterialController {
     public List<Map<String, String>> searchStorage( @RequestParam("mid") String mid, @RequestParam("plant") String plant ) throws ParseException {
         return materialService.searchStorage(mid,plant);
     }
-    @GetMapping("/searchStorage")
+    @GetMapping("/alertStorage")
     public List<Map<String, Object>> alertStorage() throws ParseException {
         return materialService.alertStorage();
     }
