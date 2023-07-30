@@ -1,16 +1,12 @@
 package com.packages.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.packages.entity.Customer;
 import com.packages.entity.MaterialSd;
-import com.packages.entity.Relationship;
-import com.packages.mapper.CustomerMapper;
 import com.packages.mapper.MaterialMapper;
 import com.packages.utils.QueryUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -54,9 +50,9 @@ public class MaterialService {
         return materialMapper.selectList(queryWrapper);
     }
 
-    public List<String> getMid(String mid, String SalesOrg, String DistrChannel) {
+    public List<Map<String, Object>> getMid(String mid, String SalesOrg, String DistrChannel) {
         String sql1 = "SELECT mid FROM material_sd WHERE mid LIKE ? AND salesorg=? AND distrchannel=?";
-        return jdbcTemplate.queryForObject(sql1, List.class, "%" + mid + "%", SalesOrg, DistrChannel);
+        return jdbcTemplate.queryForList(sql1);
     }
 
     public int insertMaterials(MaterialSd MaterialSd) {
@@ -113,9 +109,13 @@ public class MaterialService {
         return 1;
     }
 
-    public List<Map<String, String>> alertStorage(){
-
-        return null;
+    public List<Map<String, Object>> alertStorage(){
+        String sql1 = "SELECT m1.Mid,m1.Plant,SUM(m1.Unrestricted) as Unrestricted\n" +
+                "FROM materialinventory m1\n" +
+                "GROUP BY m1.Mid,m1.Plant\n" +
+                "HAVING SUM(m1.Unrestricted) < 50";
+        List<Map<String, Object>> resultList = jdbcTemplate.queryForList(sql1);
+        return resultList;
     }
     public List<Map<String, String>> searchStorage(String mid,String plant){
         System.out.println(mid);
