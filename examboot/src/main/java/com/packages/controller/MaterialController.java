@@ -29,6 +29,10 @@ public class MaterialController {
     public List<MaterialSd> getMaterials(@RequestParam Map<String, String> params) {
         return materialService.findAllMaterials(params);
     }
+    @GetMapping("/getmid")
+    public List<Map<String, Object>> getMid(@RequestParam("mid") String mid, @RequestParam("SalesOrg") String SalesOrg, @RequestParam("DistrChannel") String DistrChannel) {
+        return materialService.getMid(mid,SalesOrg,DistrChannel);
+    }
 
     @PostMapping("/insertMaterials")
     public int insertMaterials(@RequestBody MaterialSd MaterialSd) {
@@ -56,8 +60,12 @@ public class MaterialController {
         return materialService.updateStorage(time, tableData, uid);
     }
 
-    @GetMapping("/updateStorage")
-    public List<Map<String, String>> searchStorage( @RequestParam("mid") int mid, @RequestParam("plant") String plant ) throws ParseException {
+    @GetMapping("/searchStorage")
+    public List<Map<String, String>> searchStorage( @RequestParam("mid") String mid, @RequestParam("plant") String plant ) throws ParseException {
         return materialService.searchStorage(mid,plant);
+    }
+    @GetMapping("/alertStorage")
+    public List<Map<String, Object>> alertStorage() throws ParseException {
+        return materialService.alertStorage();
     }
 }
