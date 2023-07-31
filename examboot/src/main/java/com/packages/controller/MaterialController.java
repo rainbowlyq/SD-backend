@@ -1,8 +1,6 @@
 package com.packages.controller;
 
-import com.packages.entity.Customer;
 import com.packages.entity.MaterialSd;
-import com.packages.entity.Relationship;
 import com.packages.entity.Storage;
 import com.packages.service.MaterialService;
 import org.springframework.web.bind.annotation.*;
@@ -56,8 +54,8 @@ public class MaterialController {
         return materialService.updateStorage(time, tableData, uid);
     }
 
-    @GetMapping("/updateStorage")
-    public List<Map<String, String>> searchStorage( @RequestParam("mid") int mid, @RequestParam("plant") String plant ) throws ParseException {
-        return materialService.searchStorage(mid,plant);
-    }
+//    @GetMapping("/updateStorage")
+//    public List<Map<String, String>> searchStorage( @RequestParam("mid") int mid, @RequestParam("plant") String plant ) throws ParseException {
+//        return materialService.searchStorage(mid,plant);
+//    }
 }

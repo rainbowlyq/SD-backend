@@ -1,5 +1,6 @@
 package com.packages.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -12,8 +13,8 @@ import java.time.LocalDateTime;
 @TableName("delivery")
 public class Delivery {
 
-    @TableId("delid")
-    private String delid;
+    @TableId(value = "delid", type = IdType.AUTO)
+    private Long delid;
 
     @TableField(value = "salordid")
     private String salordid;
