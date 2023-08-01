@@ -50,11 +50,13 @@ public class MaterialService {
         return materialMapper.selectList(queryWrapper);
     }
 
+    //根据系统使用者的编号、salesorg、distrchannel查找物料的mid
     public List<Map<String, Object>> getMid(String mid, String SalesOrg, String DistrChannel) {
         String sql1 = "SELECT mid FROM material_sd WHERE mid LIKE concat('%', ?, '%')  AND salesorg=? AND distrchannel=?";
         return jdbcTemplate.queryForList(sql1, mid, SalesOrg, DistrChannel);
     }
 
+    //插入物料
     public int insertMaterials(MaterialSd MaterialSd) {
         int rowsAffected = materialMapper.insert(MaterialSd);
         if (rowsAffected > 0) {
@@ -64,6 +66,7 @@ public class MaterialService {
         }
     }
 
+    //更新物料
     public int updateMaterials(MaterialSd MaterialSd) {
         int rowsAffected = materialMapper.updateById(MaterialSd);
         if (rowsAffected > 0) {
@@ -77,6 +80,8 @@ public class MaterialService {
 //tableData: [
 //{Material: '', Quantity: null, Plant: '', SLoc: ''},
 //],
+
+    //更新库存
     public int updateStorage(String time, List<Map<String, String>> MI, int uid) throws ParseException {
         String pattern = "yyyy-MM-dd HH:mm:ss";
         String timezone = "GMT+8";
@@ -109,6 +114,7 @@ public class MaterialService {
         return 1;
     }
 
+    //当某个物料的库存小于50时，发出缺货通知
     public List<Map<String, Object>> alertStorage(){
         String sql1 = "SELECT m1.Mid,m1.Plant,SUM(m1.Unrestricted) as Unrestricted\n" +
                 "FROM materialinventory m1\n" +
@@ -118,6 +124,7 @@ public class MaterialService {
         return resultList;
     }
 
+    //查找四级库存（总库存、公司级库存、工厂级库存、存储位置的库存）
     public List<Map<String, String>> searchStorage(String mid,String plant){
         System.out.println(mid);
         System.out.println(plant);

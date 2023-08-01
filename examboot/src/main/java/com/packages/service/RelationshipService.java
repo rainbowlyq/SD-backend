@@ -19,7 +19,7 @@ public class RelationshipService {
         this.RelationshipMapper=RelationshipMapper;
     }
 
-
+    //新建customer和contactPerson的关系
     public int insertRelationship(Relationship Relationship) {
         int rowsAffected = RelationshipMapper.insert(Relationship);
         if (rowsAffected > 0) {

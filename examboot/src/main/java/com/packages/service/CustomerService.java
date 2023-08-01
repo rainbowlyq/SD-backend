@@ -59,6 +59,7 @@ public class CustomerService{
         return customerMapper.selectList(queryWrapper);
     }
 
+    //插入客户（organization’s customer）信息
     public int insertcustomer(Customer customer) {
         int rowsAffected = customerMapper.insert(customer);
         if (rowsAffected > 0) {
@@ -68,6 +69,7 @@ public class CustomerService{
         }
     }
 
+    //更新客户（organization’s customer）信息
     public int updateCustomer(Customer Customer) {
         int rowsAffected = customerMapper.updateById(Customer);
         if (rowsAffected > 0) {

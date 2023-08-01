@@ -23,6 +23,7 @@ public class ContactPersonService {
         this.contactPersonMapper=contactPersonMapper;
     }
 
+    //查找联系人的信息
     public List<ContactPerson> search(Map<String, String> params) {
         QueryWrapper<ContactPerson> queryWrapper = new QueryWrapper<>();
         // 根据参数构建查询条件
@@ -36,6 +37,8 @@ public class ContactPersonService {
 
         return contactPersonMapper.selectList(queryWrapper);
     }
+
+    //通过名字来查找联系人的信息
     public List<Map<String, Object>> searchByname(String name) {
         String sql = "SELECT * FROM `contact_person`  WHERE first_name LIKE ? OR last_name LIKE ?";
         RowMapper<Map<String, Object>> rowMapper = QueryUtils.genericRowMapper();
@@ -44,6 +47,7 @@ public class ContactPersonService {
         return result;
     }
 
+    //插入联系人的信息
     public int insertcontactPerson(ContactPerson ContactPerson) {
         int rowsAffected = contactPersonMapper.insert(ContactPerson);
         if (rowsAffected > 0) {
@@ -53,6 +57,8 @@ public class ContactPersonService {
         }
     }
 
+
+    //更新联系人的信息
     public int updateContactPerson(ContactPerson ContactPerson) {
         int rowsAffected = contactPersonMapper.updateById(ContactPerson);
         if (rowsAffected > 0) {
