@@ -50,13 +50,14 @@ public abstract class BaseService<M extends BaseMapper<T>, T> extends ServiceImp
         return getById(getId(t));
     }
 
-    public void createOrUpdate(@RequestBody T t) {
+    public boolean createOrUpdate(@RequestBody T t) {
         Serializable id = getId(t);
         if (id == null) {
             save(t);
         } else {
             updateById(t);
         }
+        return false;
     }
 
 

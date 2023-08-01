@@ -1,5 +1,6 @@
 package com.packages.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 
@@ -11,4 +12,7 @@ public class Sell {
     private Integer matid;
     private Integer ordquantity;
     private String description;
+
+    @TableField(exist = false)
+    private Double price;
 }

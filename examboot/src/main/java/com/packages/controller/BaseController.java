@@ -24,8 +24,8 @@ public abstract class BaseController<T, S extends BaseService<M, T>, M extends B
     }
 
     @PostMapping("/createOrUpdate")
-    public void createOrUpdate(@RequestBody T t) {
-        service.createOrUpdate(t);
+    public boolean createOrUpdate(@RequestBody T t) {
+        return service.createOrUpdate(t);
     }
 
 

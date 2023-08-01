@@ -16,7 +16,7 @@ public class DeliveryItem {
     private Long delid;
 
     @TableField(value = "matid")
-    private String matid;
+    private Integer matid;
 
     @TableField(value = "quantity")
     private Integer quantity;

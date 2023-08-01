@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @TableName("delivery")
@@ -40,4 +41,7 @@ public class Delivery {
     @TableField(exist = false)
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime pickingDateEnd;
+
+    @TableField(exist = false)
+    private List<Sell> items;
 }
