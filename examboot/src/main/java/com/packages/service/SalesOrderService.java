@@ -2,8 +2,10 @@ package com.packages.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.packages.entity.*;
-import com.packages.mapper.*;
+import com.packages.entity.Salesorder;
+import com.packages.entity.Sell;
+import com.packages.mapper.SalesorderMapper;
+import com.packages.mapper.SellMapper;
 import com.packages.utils.DateFormat;
 import com.packages.utils.QueryUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -84,4 +86,7 @@ public class SalesOrderService {
         return result;
     }
 
+    public Salesorder getBySalordId(Integer salordid) {
+        return salesorderMapper.selectById(salordid);
+    }
 }
