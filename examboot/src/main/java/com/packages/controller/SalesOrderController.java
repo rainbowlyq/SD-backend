@@ -10,8 +10,10 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 @RequestMapping("/salesorder")
 @RestController
 public class SalesOrderController {
@@ -46,5 +48,12 @@ public class SalesOrderController {
     @GetMapping("/getSalesOrderItem")
     public List<Map<String, Object>> getSalesOrderItem(@RequestParam("salordid") String salordid) {
         return salesOrderService.findSalesOrderItemBySalordid(salordid);
+    }
+
+
+    @GetMapping("/getfulall")
+    public List<Map<String,Object>> getfulall(){
+        List<Map<String,Object>> list=salesOrderService.findfulfillment();
+        return list;
     }
 }
