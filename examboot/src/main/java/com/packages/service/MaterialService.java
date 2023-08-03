@@ -170,30 +170,32 @@ public class MaterialService {
         full.put("Client","full");
         Mstorage.add(full);
 
-        String sql4 = "SELECT CONCAT(materialinventory.Plant,' ',plandescrp) as Client\n" +
+        String sql4 = "SELECT CONCAT(company_code,' ',comdescrp) as Client FROM materialinventory,plant_company\n" +
+                "WHERE materialinventory.Plant = plant_company.delivering_plant \n" +
+                "AND materialinventory.StorageLoc = plant_company.storage_loc\n" +
+                "AND Mid=? \n" +
+                "AND company_code = (select distinct company_code from plant_company where delivering_plant = ?)\n" +
+                "GROUP BY company_code,comdescrp";
+        String sql5 = "SELECT SUM(materialinventory.Unrestricted) as Unrestricted FROM materialinventory,plant_company\n" +
+                "WHERE materialinventory.Plant = plant_company.delivering_plant \n" +
+                "AND materialinventory.StorageLoc = plant_company.storage_loc\n" +
+                "AND Mid=? \n" +
+                "AND company_code = (select distinct company_code from plant_company where delivering_plant = ?)\n" +
+                "GROUP BY company_code,comdescrp";
+        String sql6 = "SELECT  SUM(materialinventory.SalesOrder) as SalesOrder\n" +
                 "FROM materialinventory,plant_company\n" +
                 "WHERE materialinventory.Plant = plant_company.delivering_plant \n" +
                 "AND materialinventory.StorageLoc = plant_company.storage_loc\n" +
-                "AND Mid=? AND Plant = ?\n" +
-                "GROUP BY materialinventory.Plant,plandescrp";
-        String sql5 = "SELECT SUM(materialinventory.Unrestricted) as Unrestricted\n" +
-                "FROM materialinventory,plant_company\n" +
-                "WHERE materialinventory.Plant = plant_company.delivering_plant \n" +
-                "AND materialinventory.StorageLoc = plant_company.storage_loc\n" +
-                "AND Mid=? AND Plant = ?\n" +
-                "GROUP BY materialinventory.Plant,plandescrp";
-        String sql6 = "SELECT SUM(materialinventory.SalesOrder) as SalesOrder\n" +
-                "FROM materialinventory,plant_company\n" +
-                "WHERE materialinventory.Plant = plant_company.delivering_plant \n" +
-                "AND materialinventory.StorageLoc = plant_company.storage_loc\n" +
-                "AND Mid=? AND Plant = ?\n" +
-                "GROUP BY materialinventory.Plant,plandescrp";
+                "AND Mid=? \n" +
+                "AND company_code = (select distinct company_code from plant_company where delivering_plant = ?)\n" +
+                "GROUP BY company_code,comdescrp";
         String sql7 = "SELECT SUM(materialinventory.SchedForDel) as SchedForDel\n" +
                 "FROM materialinventory,plant_company\n" +
                 "WHERE materialinventory.Plant = plant_company.delivering_plant \n" +
                 "AND materialinventory.StorageLoc = plant_company.storage_loc\n" +
-                "AND Mid=? AND Plant = ?\n" +
-                "GROUP BY materialinventory.Plant,plandescrp";
+                "AND Mid=? \n" +
+                "AND company_code = (select distinct company_code from plant_company where delivering_plant = ?)\n" +
+                "GROUP BY company_code,comdescrp";
         Unrestricted2 = jdbcTemplate.queryForObject(sql5, Integer.class, mid,plant);
         SalesOrder2 = jdbcTemplate.queryForObject(sql6, Integer.class, mid,plant);
         SchedForDel2 = jdbcTemplate.queryForObject(sql7, Integer.class, mid,plant);
