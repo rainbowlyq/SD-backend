@@ -86,14 +86,14 @@ public class SalesOrderService {
 
     public List<Map<String,Object>> findfulfillment(){
         String sql="SELECT reqdelivdate-curdate() as nextd,netvalue as nov,salesorder.currency as cur,\n" +
-                "                reqdelivdate as reqdate,salordid,soldtoparty,customer.name as cus,\n" +
+                "                reqdelivdate as reqdate,salordid,soldtoparty,customer.name as cus,issue,\n" +
                 "CASE \n" +
                 "                WHEN `status` = 'INV' THEN 'InVoice'\n" +
                 "                WHEN `status` = 'ORD' THEN 'InOrder'\n" +
                 "                WHEN `status` = 'DLV' THEN 'InDelivery'\n" +
                 "                WHEN `status` = 'FIN' THEN 'Finished'\n" +
                 "                        ELSE `status`\n" +
-                "                    END AS issue\n" +
+                "                    END AS sta\n" +
                 "                from salesorder,customer\n" +
                 "where salesorder.soldtoparty=customer.bp";
         RowMapper<Map<String, Object>> rowMapper = QueryUtils.genericRowMapper();
