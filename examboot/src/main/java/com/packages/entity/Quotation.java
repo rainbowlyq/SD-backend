@@ -16,7 +16,7 @@ public class Quotation {
     private String validfrom;
     private String validto;
     private String reqdelivdate;
-    private Integer netvalue;
+    private Double netvalue;
     private Integer expordvalue;
     private String currency;
     private Integer weight;
