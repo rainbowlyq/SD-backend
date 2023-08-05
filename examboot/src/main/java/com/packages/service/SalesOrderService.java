@@ -87,17 +87,34 @@ public class SalesOrderService {
     }
 
     public List<Map<String,Object>> findfulfillment(){
-        String sql="SELECT reqdelivdate-curdate() as nextd,netvalue as nov,salesorder.currency as cur,\n" +
-                "                reqdelivdate as reqdate,salordid,soldtoparty,customer.name as cus,issue,\n" +
-                "CASE \n" +
-                "                WHEN `status` = 'INV' THEN 'InVoice'\n" +
-                "                WHEN `status` = 'ORD' THEN 'InOrder'\n" +
-                "                WHEN `status` = 'DLV' THEN 'InDelivery'\n" +
-                "                WHEN `status` = 'FIN' THEN 'Finished'\n" +
-                "                        ELSE `status`\n" +
-                "                    END AS sta\n" +
-                "                from salesorder,customer\n" +
-                "where salesorder.soldtoparty=customer.bp";
+        String sql="SELECT netvalue as nov,salesorder.currency as cur,\n" +
+                "                                reqdelivdate as reqdate,salordid,soldtoparty,customer.name as cus,\n" +
+                "\t\t\t\t\t\t\t\tCASE\n" +
+                "\t\t\t\t\t\t\t\t                WHEN issue = 'INCP' THEN 'General Data Incomplete'\n" +
+                "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tWHEN issue = 'DLVP' THEN 'Creation of Delivery Pending'\n" +
+                "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tWHEN issue = 'NPIC' THEN 'Not Picked Yet'\n" +
+                "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tWHEN issue = 'YPIC' THEN 'Partially Picked'\n" +
+                "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tWHEN issue = 'APIC' THEN 'All Picked'\n" +
+                "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tWHEN issue = 'NSTA' THEN 'Not yet Started'\n" +
+                "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tWHEN issue = 'YSTA' THEN 'Partially Started'\n" +
+                "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tWHEN issue = 'ASTA' THEN 'All Started'\n" +
+                "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tWHEN issue = 'NINV' THEN 'No Invoice Created'\n" +
+                "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tWHEN issue = 'PINV' THEN 'Partially Invoice Created'\n" +
+                "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tWHEN issue = 'AINV' THEN 'All Invoice Created'\n" +
+                "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tWHEN issue = 'NREC' THEN 'No Receipt Issued'\n" +
+                "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tWHEN issue = 'PREC' THEN 'Partially Receipt Issued'\n" +
+                "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tWHEN issue = 'APREC' THEN 'All Receipt Issued'\n" +
+                "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t        ELSE issue\n" +
+                "\t\t\t\t\t\t\t\t                    END AS issue,\n" +
+                "                CASE \n" +
+                "                                WHEN `status` = 'INV' THEN 'In Voice'\n" +
+                "                                WHEN `status` = 'ORD' THEN 'In Order'\n" +
+                "                                WHEN `status` = 'DLV' THEN 'In Delivery'\n" +
+                "                                WHEN `status` = 'FIN' THEN 'Finished'\n" +
+                "                                        ELSE `status`\n" +
+                "                                    END AS sta\n" +
+                "                                from salesorder,customer\n" +
+                "                where salesorder.soldtoparty=customer.bp";
         RowMapper<Map<String, Object>> rowMapper = QueryUtils.genericRowMapper();
         List<Map<String, Object>> result = jdbcTemplate.query(sql, rowMapper);
         return result;
