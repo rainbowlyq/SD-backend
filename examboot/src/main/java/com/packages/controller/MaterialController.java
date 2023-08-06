@@ -34,7 +34,10 @@ public class MaterialController {
 
     @PostMapping("/insertMaterials")
     public int insertMaterials(@RequestBody MaterialSd MaterialSd) {
-        return materialService.insertMaterials(MaterialSd);
+        String mid = MaterialSd.getMid();
+        String plt = MaterialSd.getDelstorplant();
+        String stl = MaterialSd.getStorageloc();
+        return materialService.insertMaterials(MaterialSd,mid,plt,stl);
     }
 
     @PostMapping("/updateMaterials")
