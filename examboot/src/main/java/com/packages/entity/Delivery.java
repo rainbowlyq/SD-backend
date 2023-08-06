@@ -18,13 +18,13 @@ public class Delivery {
     private Long delid;
 
     @TableField(value = "salordid")
-    private String salordid;
+    private Integer salordid;
 
     @TableField(value = "shiptoparty")
     private String shiptoparty;
 
     @TableField(value = "status")
-    private Integer status;
+    private Integer status = 1;
 
     @TableField(value = "description")
     private String description;

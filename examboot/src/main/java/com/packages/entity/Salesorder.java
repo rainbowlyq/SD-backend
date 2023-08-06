@@ -15,7 +15,7 @@ public class Salesorder {
     private String shiptoparty;
     private String cusref;
     private String reqdelivdate;
-    private Integer netvalue;
+    private Double netvalue;
     private String currency;
     private Integer weight;
     private Integer refquoid;

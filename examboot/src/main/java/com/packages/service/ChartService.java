@@ -106,4 +106,32 @@ public class ChartService {
         RowMapper<Map<String, Object>> rowMapper = QueryUtils.genericRowMapper();
         return jdbcTemplate.query(sql, rowMapper);
     }
+
+    public List<Map<String, Object>> piechartCount(){
+        String sql="SELECT \n" +
+                "    SUM(CASE WHEN `status` = 'INV' THEN 1 ELSE 0 END) AS InVoice,\n" +
+                "    SUM(CASE WHEN `status` = 'ORD' THEN 1 ELSE 0 END) AS InOrder,\n" +
+                "    SUM(CASE WHEN `status` = 'DLV' THEN 1 ELSE 0 END) AS InDelivery,\n" +
+                "    SUM(CASE WHEN `status` = 'FIN' THEN 1 ELSE 0 END) AS Finished\n" +
+                "FROM salesorder";
+        RowMapper<Map<String, Object>> rowMapper = QueryUtils.genericRowMapper();
+        return jdbcTemplate.query(sql, rowMapper);
+    }
+
+    public List<Map<String, Object>> piechartCount2(){
+        String sql="SELECT\n" +
+                "  SUM(CASE WHEN compare >= 0 THEN 1 ELSE 0 END) AS ontime,\n" +
+                "  SUM(CASE WHEN compare < 0 THEN 1 ELSE 0 END) AS failtime\n" +
+                "FROM (\n" +
+                "  SELECT\n" +
+                "    salesorder.salordid,\n" +
+                "    CURRENT_DATE - DATE(goods_issue.date) AS compare\n" +
+                "  FROM\n" +
+                "    salesorder\n" +
+                "    JOIN delivery ON salesorder.salordid = delivery.salordid\n" +
+                "    JOIN goods_issue ON delivery.delid = goods_issue.delid\n" +
+                ") AS subquery";
+        RowMapper<Map<String, Object>> rowMapper = QueryUtils.genericRowMapper();
+        return jdbcTemplate.query(sql, rowMapper);
+    }
 }

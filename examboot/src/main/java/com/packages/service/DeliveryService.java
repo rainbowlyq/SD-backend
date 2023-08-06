@@ -3,6 +3,7 @@ package com.packages.service;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.packages.entity.Delivery;
 import com.packages.entity.DeliveryItem;
+import com.packages.entity.Salesorder;
 import com.packages.entity.Sell;
 import com.packages.mapper.DeliveryMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,9 @@ public class DeliveryService extends BaseService<DeliveryMapper, Delivery> {
     @Autowired
     private DeliveryItemService itemService;
 
+    @Autowired
+    private SalesOrderService salesOrderService;
+
     @Override
     public List<Delivery> search(Delivery delivery) {
         return getBaseMapper().search(delivery);
@@ -32,7 +36,9 @@ public class DeliveryService extends BaseService<DeliveryMapper, Delivery> {
             return false;
         }
 
-
+        Integer salordid = delivery.getSalordid();
+        Salesorder saleOrder = salesOrderService.getBySalordId(salordid);
+        delivery.setShiptoparty(saleOrder.getShiptoparty());
         if (delivery.getDelid() == null) {
             save(delivery);
         } else {

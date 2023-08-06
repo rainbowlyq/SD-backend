@@ -25,4 +25,14 @@ public class ChartController {
     public List<Map<String, Object>> getOrderCount() {
         return chartService.getOrderCount();
     }
+
+    @GetMapping("/piecount")
+    public List<Map<String,Object>> PieChartCount(){
+        return chartService.piechartCount();
+    }
+
+    @GetMapping("/piecount2")
+    public List<Map<String,Object>> PieChartCount2(){
+        return chartService.piechartCount2();
+    }
 }
