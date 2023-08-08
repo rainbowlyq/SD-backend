@@ -57,13 +57,20 @@ public class MaterialService {
     }
 
     //插入物料
-    public int insertMaterials(MaterialSd MaterialSd) {
+    public int insertMaterials(MaterialSd MaterialSd,String mid,String plt,String stl) {
         int rowsAffected = materialMapper.insert(MaterialSd);
+        String sql1 = "SELECT Unrestricted FROM materialinventory WHERE Mid=?  AND Plant=? AND StorageLoc=?";
+        Integer org_Unrestricted = jdbcTemplate.queryForObject(sql1, Integer.class, mid, plt, stl);
+        if (org_Unrestricted == null){
+            String sql2 = "INSERT INTO materialinventory(Mid,Plant,StorageLoc,Unrestricted,SalesOrder,SchedForDel) values(?,?,?,?,?,?)";
+            int rowsAffected1 = jdbcTemplate.update(sql2, mid, plt, stl, 0, 0, 0);
+        }
         if (rowsAffected > 0) {
             return 1; // 成功
         } else {
             return -1; // 或者根据需求返回其他表示插入失败的值
         }
+
     }
 
     //更新物料
