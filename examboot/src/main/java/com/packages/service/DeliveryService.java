@@ -1,8 +1,6 @@
 package com.packages.service;
 
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.packages.entity.Delivery;
-import com.packages.entity.DeliveryItem;
 import com.packages.entity.Salesorder;
 import com.packages.entity.Sell;
 import com.packages.mapper.DeliveryMapper;
@@ -11,14 +9,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class DeliveryService extends BaseService<DeliveryMapper, Delivery> {
-
-    @Autowired
-    private DeliveryItemService itemService;
 
     @Autowired
     private SalesOrderService salesOrderService;
@@ -45,21 +39,6 @@ public class DeliveryService extends BaseService<DeliveryMapper, Delivery> {
             updateById(delivery);
         }
 
-
-        ArrayList<DeliveryItem> deliveryItems = new ArrayList<>();
-        for (Sell item : items) {
-            DeliveryItem deliveryItem = new DeliveryItem();
-            deliveryItem.setDelid(delivery.getDelid());
-            deliveryItem.setMatid(item.getMatid());
-            deliveryItem.setQuantity(item.getOrdquantity());
-            deliveryItem.setAvgvalue(item.getPrice());
-            deliveryItems.add(deliveryItem);
-        }
-
-
-        itemService.remove(Wrappers.<DeliveryItem>lambdaQuery().eq(DeliveryItem::getDelid, delivery.getDelid()));
-
-        itemService.saveBatch(deliveryItems);
         return true;
     }
 
@@ -70,8 +49,6 @@ public class DeliveryService extends BaseService<DeliveryMapper, Delivery> {
         if (delid == null) {
             return;
         }
-
-        itemService.remove(Wrappers.<DeliveryItem>lambdaQuery().eq(DeliveryItem::getDelid, delid));
 
         removeById(delid);
     }

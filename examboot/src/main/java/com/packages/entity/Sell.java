@@ -15,4 +15,10 @@ public class Sell {
 
     @TableField(exist = false)
     private Double price;
+
+    @TableField(exist = false)
+    private String storageloc;
+
+    @TableField(exist = false)
+    private String plant;
 }

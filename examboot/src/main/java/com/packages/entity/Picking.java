@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 @TableName("picking")
@@ -19,7 +19,7 @@ public class Picking {
     private Long delid;
 
     @TableField(value = "matid")
-    private String matid;
+    private Integer matid;
 
     @TableField(value = "quantity")
     private Integer quantity;
@@ -33,5 +33,5 @@ public class Picking {
 
     @TableField(value = "date")
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDateTime date;
+    private LocalDate date;
 }

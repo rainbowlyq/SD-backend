@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -31,16 +31,16 @@ public class Delivery {
 
     @TableField(exist = false)
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDateTime pickingDate;
+    private LocalDate pickingDate;
 
     @TableField(exist = false)
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDateTime pickingDateStart;
+    private LocalDate pickingDateStart;
 
 
     @TableField(exist = false)
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDateTime pickingDateEnd;
+    private LocalDate pickingDateEnd;
 
     @TableField(exist = false)
     private List<Sell> items;
