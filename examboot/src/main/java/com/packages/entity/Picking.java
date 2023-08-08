@@ -27,7 +27,6 @@ public class Picking {
     @TableField(value = "plant")
     private String plant;
 
-
     @TableField(value = "storageloc")
     private String storageloc;
 

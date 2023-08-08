@@ -17,8 +17,11 @@ public class Sell {
     private Double price;
 
     @TableField(exist = false)
+    private Integer msdid;
+
+    @TableField(exist = false)
     private String storageloc;
 
     @TableField(exist = false)
-    private String plant;
+    private String delstorplant;
 }

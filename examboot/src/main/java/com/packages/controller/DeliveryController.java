@@ -42,27 +42,38 @@ public class DeliveryController extends BaseController<Delivery, DeliveryService
         for (Sell item : delivery.getItems()) {
             DeliveryItem deliveryItem = new DeliveryItem();
             deliveryItem.setDelid(delivery.getDelid());
-            deliveryItem.setMatid(item.getMatid());
+            deliveryItem.setMatid(item.getMsdid());
             deliveryItem.setQuantity(item.getOrdquantity());
             deliveryItem.setAvgvalue(item.getPrice());
             deliveryItems.add(deliveryItem);
 
             Picking picking = new Picking();
             picking.setDelid(delivery.getDelid());
-            picking.setMatid(item.getMatid());
+            picking.setMatid(item.getMsdid());
             picking.setQuantity(item.getOrdquantity());
-            picking.setMatid(item.getMatid());
             picking.setDate(pickingDate);
-            picking.setPlant(item.getPlant());
+            picking.setPlant(item.getDelstorplant());
             picking.setStorageloc(item.getStorageloc());
             pickings.add(picking);
         }
-        deliveryItemService.remove(Wrappers.lambdaQuery(new DeliveryItem()).eq(DeliveryItem::getDelid,delivery.getDelid()));
+        deliveryItemService.remove(Wrappers.lambdaQuery(new DeliveryItem()).eq(DeliveryItem::getDelid, delivery.getDelid()));
         deliveryItemService.saveBatch(deliveryItems);
-        pickingService.remove(Wrappers.lambdaQuery(new Picking()).eq(Picking::getDelid,delivery.getDelid()));
+        pickingService.remove(Wrappers.lambdaQuery(new Picking()).eq(Picking::getDelid, delivery.getDelid()));
         pickingService.saveBatch(pickings);
         delivery.setStatus(2);
         service.updateById(delivery);
 
+    }
+
+
+    @PostMapping("/updateStatus")
+    @Transactional
+    public void updateStatus(@RequestBody Delivery delivery) {
+        Delivery d = new Delivery();
+        d.setStatus(null);
+        service.update(Wrappers.lambdaUpdate(d)
+                .eq(Delivery::getDelid, delivery.getDelid())
+                .set(Delivery::getStatus, delivery.getStatus())
+        );
     }
 }
