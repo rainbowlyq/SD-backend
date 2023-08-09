@@ -52,4 +52,8 @@ public class DeliveryService extends BaseService<DeliveryMapper, Delivery> {
 
         removeById(delid);
     }
+    
+    public List<Delivery> findAllBySalOrdId(int salordid){
+        return getBaseMapper().findAllBySalOrdId(salordid);
+    }
 }

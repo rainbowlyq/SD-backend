@@ -46,4 +46,7 @@ public interface DeliveryMapper extends BaseMapper<Delivery> {
             "</script>"
     })
     List<Delivery> search(Delivery delivery);
+    
+    @Select("select * from invoice where salordid = #{salordid};")
+    List<Delivery> findAllBySalOrdId(int salordid);
 }

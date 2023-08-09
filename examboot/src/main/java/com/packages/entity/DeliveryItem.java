@@ -23,5 +23,14 @@ public class DeliveryItem {
 
     @TableField(value = "avgvalue")
     private Double avgvalue;
+    
+    @TableField(exist = false)
+    private String currency;
+    
+    @TableField(exist = false)
+    private Double weight;
+    
+    @TableField(exist = false)
+    private String weightUnit;
 
 }
