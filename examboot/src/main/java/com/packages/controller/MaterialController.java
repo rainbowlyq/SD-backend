@@ -53,8 +53,7 @@ public class MaterialController {
     @PostMapping("/updateStorage")
     public int updateStorage(HttpServletRequest request, @RequestBody Storage storage) throws ParseException {
         HttpSession session = request.getSession();
-//        int uid = (int) session.getAttribute("uid");
-        int uid = 1;//登录做完得删掉
+        int uid = (int) session.getAttribute("uid");
         String time = storage.getTime();
         List<Map<String, String>> tableData = storage.getTableData();
         System.out.println(tableData);
