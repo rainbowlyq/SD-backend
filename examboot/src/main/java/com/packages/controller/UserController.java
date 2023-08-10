@@ -14,7 +14,7 @@ public class UserController {
     @Resource
     private UserService UserService;
 
-    @GetMapping("/login")
+    @PostMapping("/login")
     public int insertMaterials(@RequestBody User User, HttpServletRequest request) {
         String uname = User.getUname();
         String pwd = User.getPwd();
