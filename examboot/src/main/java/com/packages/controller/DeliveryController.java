@@ -1,5 +1,6 @@
 package com.packages.controller;
 
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.packages.entity.Delivery;
 import com.packages.entity.DeliveryItem;
@@ -32,7 +33,7 @@ public class DeliveryController extends BaseController<Delivery, DeliveryService
 
     @PostMapping("/pick")
     @Transactional
-    public void pick(@RequestBody Delivery delivery) {
+    public String pick(@RequestBody Delivery delivery) {
         ArrayList<DeliveryItem> deliveryItems = new ArrayList<>();
         ArrayList<Picking> pickings = new ArrayList<>();
         LocalDate pickingDate = delivery.getPickingDate();
@@ -41,21 +42,29 @@ public class DeliveryController extends BaseController<Delivery, DeliveryService
         }
 
         for (Sell item : delivery.getItems()) {
+            Integer ordquantity = item.getOrdquantity();
+            if (ordquantity == null || ordquantity < 0) {
+                continue;
+            }
             DeliveryItem deliveryItem = new DeliveryItem();
             deliveryItem.setDelid(delivery.getDelid());
             deliveryItem.setMatid(item.getMsdid());
-            deliveryItem.setQuantity(item.getOrdquantity());
+            deliveryItem.setQuantity(ordquantity);
             deliveryItem.setAvgvalue(item.getPrice());
             deliveryItems.add(deliveryItem);
+
 
             Picking picking = new Picking();
             picking.setDelid(delivery.getDelid());
             picking.setMatid(item.getMatid());
-            picking.setQuantity(item.getOrdquantity());
+            picking.setQuantity(ordquantity);
             picking.setDate(pickingDate);
             picking.setPlant(item.getDelstorplant());
             picking.setStorageloc(item.getStorageloc());
             pickings.add(picking);
+        }
+        if (CollectionUtils.isEmpty(pickings)){
+            return "未选择分拣物料";
         }
         deliveryItemService.remove(Wrappers.lambdaQuery(new DeliveryItem()).eq(DeliveryItem::getDelid, delivery.getDelid()));
         deliveryItemService.saveBatch(deliveryItems);
@@ -64,6 +73,7 @@ public class DeliveryController extends BaseController<Delivery, DeliveryService
         delivery.setStatus(2);
         service.updateById(delivery);
 
+        return null;
     }
 
 

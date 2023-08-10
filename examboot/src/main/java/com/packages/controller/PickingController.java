@@ -23,16 +23,18 @@ public class PickingController extends BaseController<Picking, PickingService, P
     @PostMapping("/preview")
     public List<Map<String, Object>> preview(@RequestBody Map<String, Object> data) {
 
-        return jdbcTemplate.queryForList("SELECT e.*, m.*,(e.ordquantity - ifnull(picked.quantity,0))maxQuantity " +
+        return jdbcTemplate.queryForList("SELECT e.*, m.*, (e.ordquantity - ifnull(picked.quantity, 0)) maxQuantity " +
                 "FROM salesorder i " +
                 "         INNER JOIN sell e ON i.salordid = e.salordid " +
                 "         INNER JOIN material_sd m ON e.matid = m.msdId " +
-                "         left join (select ms.*, p.quantity, d.salordid " +
+                "         left join (select ms.msdId, sum(p.quantity) quantity, d.salordid " +
                 "                    from delivery d " +
                 "                             inner join picking p on d.delid = p.delid " +
                 "                             inner join material_sd ms " +
-                "                                        on p.matid = ms.msdid) picked " +
-                "                   on i.salordid = picked.salordid and  m.msdId = picked.msdId " +
+                "                                        on p.matid = ms.msdid " +
+                " " +
+                "                    group by d.salordid, ms.msdId) picked " +
+                "                   on i.salordid = picked.salordid and m.msdId = picked.msdId " +
                 " " +
                 "where i.salordid = " + data.get("salordid"));
     }
