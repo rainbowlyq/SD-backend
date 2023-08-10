@@ -19,11 +19,11 @@ public class UserController {
         String uname = User.getUname();
         String pwd = User.getPwd();
         int client = User.getClient();
-        User U = UserService.login(uname,pwd,client);
-        if(U != null){
+        Integer uid = UserService.login(uname,pwd,client);
+        if(uid != 0){
             //将登陆成功后的user对象，存储到session
             HttpSession session = request.getSession();
-            session.setAttribute("uid",User.getUid());
+            session.setAttribute("uid",uid);
             return 1;  // 返回登录成功标识
         } else {
             return 0;  // 返回登录失败标识

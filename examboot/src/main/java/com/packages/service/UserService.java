@@ -23,16 +23,16 @@ public class UserService {
         this.UserMapper = UserMapper;
     }
 
-    public User login(String uname,String pwd,int client) {
-        String sql1 = "SELECT * FROM user WHERE uname=?  AND pwd=? AND client=?";
-        User User = null;
+    public Integer login(String uname,String pwd,int client) {
+        String sql1 = "SELECT uid FROM user WHERE uname=?  AND pwd=? AND client=?";
+        Integer uid = 0;
         try {
-            User = jdbcTemplate.queryForObject(sql1, User.class, uname, pwd,client);
+            uid = jdbcTemplate.queryForObject(sql1, Integer.class, uname, pwd,client);
+            return uid;
         } catch (EmptyResultDataAccessException e) {
             // 查询结果为null，处理异常情况
             // 在这里进行适当的处理
-            return User;
+            return uid;
         }
-        return User;
     }
 }
