@@ -49,7 +49,7 @@ public class DeliveryController extends BaseController<Delivery, DeliveryService
 
             Picking picking = new Picking();
             picking.setDelid(delivery.getDelid());
-            picking.setMatid(item.getMsdid());
+            picking.setMatid(item.getMatid());
             picking.setQuantity(item.getOrdquantity());
             picking.setDate(pickingDate);
             picking.setPlant(item.getDelstorplant());
