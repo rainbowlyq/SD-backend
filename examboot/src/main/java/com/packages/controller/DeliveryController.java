@@ -39,6 +39,7 @@ public class DeliveryController extends BaseController<Delivery, DeliveryService
         if (pickingDate == null) {
             pickingDate = LocalDate.now();
         }
+
         for (Sell item : delivery.getItems()) {
             DeliveryItem deliveryItem = new DeliveryItem();
             deliveryItem.setDelid(delivery.getDelid());
