@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.packages.entity.MaterialSd;
 import com.packages.mapper.MaterialMapper;
 import com.packages.utils.QueryUtils;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
@@ -60,8 +61,11 @@ public class MaterialService {
     public int insertMaterials(MaterialSd MaterialSd,String mid,String plt,String stl) {
         int rowsAffected = materialMapper.insert(MaterialSd);
         String sql1 = "SELECT Unrestricted FROM materialinventory WHERE Mid=?  AND Plant=? AND StorageLoc=?";
-        Integer org_Unrestricted = jdbcTemplate.queryForObject(sql1, Integer.class, mid, plt, stl);
-        if (org_Unrestricted == null){
+        try {
+            Integer org_Unrestricted = jdbcTemplate.queryForObject(sql1, Integer.class, mid, plt, stl);
+        }catch (EmptyResultDataAccessException e) {
+            // 查询结果为null，处理异常情况
+            // 在这里进行适当的处理
             String sql2 = "INSERT INTO materialinventory(Mid,Plant,StorageLoc,Unrestricted,SalesOrder,SchedForDel) values(?,?,?,?,?,?)";
             int rowsAffected1 = jdbcTemplate.update(sql2, mid, plt, stl, 0, 0, 0);
         }
