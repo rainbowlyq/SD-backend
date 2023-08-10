@@ -8,6 +8,7 @@ import com.packages.entity.GoodsIssue;
 import com.packages.entity.Salesorder;
 import com.packages.mapper.DeliveryMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +31,9 @@ public class DeliveryService extends BaseService<DeliveryMapper, Delivery> {
 
     @Autowired
     private PickingController pickingController;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @Override
     public List<Delivery> search(Delivery delivery) {
@@ -73,7 +77,11 @@ public class DeliveryService extends BaseService<DeliveryMapper, Delivery> {
         if (delid == null) {
             return;
         }
-
+        jdbcTemplate.update("update materialinventory mi inner join (select ms.mid, ms.delstorplant, ms.storageloc, ifnull(count(p.quantity), 0) quantity " +
+                "                                        from picking p " +
+                "                                                 inner join material_sd ms on p.matid = ms.msdId and p.delid =  " + delid +
+                "                                       group by ms.mid, ms.delstorplant, ms.storageloc) picked on mi.Mid = picked.mid and mi.Plant = picked.delstorplant and mi.StorageLoc = picked.storageloc " +
+                "set mi.SchedForDel = mi.SchedForDel - picked.quantity");
         removeById(delid);
         DeliveryItem deleteDeliveryItem = new DeliveryItem();
         deleteDeliveryItem.setDelid(delid);
