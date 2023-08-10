@@ -37,7 +37,16 @@ public class InvoiceController extends BaseController<Invoice, InvoiceService, I
     
     @PostMapping("/createByDeliveryId/{delid}")
     public Invoice createInvoiceByDeliveryId(@PathVariable int delid){
-        return invoiceService.createInvoice(delid);
+        return invoiceService.createInvoiceByDelId(delid);
+    }
+    @PostMapping("/createBySalOrdId/{salOrdId}")
+    public Invoice createBySalOrdId(@PathVariable int salOrdId){
+        return invoiceService.createInvoiceBySalOrdId(salOrdId);
+    }
+    
+    @PostMapping("/create")
+    public Invoice createInvoice(@RequestBody Invoice invoice){
+        return invoiceService.createInvoice(invoice);
     }
     
     @PostMapping("/getInvoiceById/{invid}")

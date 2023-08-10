@@ -1,6 +1,7 @@
 package com.packages.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.packages.entity.Salesorder;
 import com.packages.entity.Delivery;
 import com.packages.entity.DeliveryItem;
 import com.packages.entity.Invoice;
@@ -42,7 +43,7 @@ public class InvoiceService extends BaseService<InvoiceMapper, Invoice> {
     private MaterialMapper materialMapper;
     
     //根据1个delivery开1个invoice
-    public Invoice createInvoice(int delid) {
+    public Invoice createInvoiceByDelId(int delid) {
         Invoice invoice = new Invoice();
         Delivery delivery = deliveryService.getById(delid);
         invoice.setDelId(delivery.getDelid());
@@ -61,22 +62,33 @@ public class InvoiceService extends BaseService<InvoiceMapper, Invoice> {
         return invoice;
     }
     
-    //根据多个delivery开1个invoice
-    public Invoice createInvoice(List<Delivery> deliveries) {
+    //根据1个sales order开1个invoice
+    public Invoice createInvoiceBySalOrdId(int salOrdId) {
+        Salesorder salesorder = salesOrderService.getBySalordId(salOrdId);
         Invoice invoice = new Invoice();
-        Double netvalue = 0.0;
-        for (Delivery delivery : deliveries) {
-            netvalue += salesOrderService.getBySalordId(delivery.getSalordid()).getNetvalue();
-            // todo
-            invoice.setDelId(delivery.getDelid());
-            // todo
-            invoice.setShipToParty(delivery.getShiptoparty());
-        }
-        invoice.setNetValue(netvalue);
-        //invoice.setUpdateDatetime(LocalDateTime.now());
+        invoice.setSalOrdId(salOrdId);
+        invoice.setShipToParty(salesorder.getShiptoparty());
+        invoice.setNetValue(salesorder.getNetvalue());
+        invoice.setUpdateDatetime(LocalDateTime.now());
         invoiceMapper.insert(invoice);
         return invoice;
     }
+    public Invoice createInvoice(Invoice invoice) {
+        Salesorder salesorder = salesOrderService.getBySalordId(invoice.getSalOrdId());
+        List<Delivery> deliveries = deliveryService.findAllBySalOrdId(invoice.getSalOrdId());
+        if(deliveries.size()==1){
+            invoice.setDelId(deliveries.get(0).getDelid());
+        }
+        // Double netvalue = 0.0;
+        // List<Delivery> deliveries = deliveryService.findAllBySalOrdId();
+        // for (Delivery delivery : deliveries) {
+        //     netvalue += salesOrderService.getBySalordId(delivery.getSalordid()).getNetvalue();
+        // }
+        invoice.setUpdateDatetime(LocalDateTime.now());
+        invoiceMapper.insert(invoice);
+        return invoice;
+    }
+    
     
     //作废Invoice
     public void invalidateInvoice(Invoice invoice) {
