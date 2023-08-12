@@ -12,6 +12,7 @@ public class Sell {
     private Integer matid;
     private Integer ordquantity;
     private String description;
+    private Double slevalue;
 
     @TableField(exist = false)
     private Double price;

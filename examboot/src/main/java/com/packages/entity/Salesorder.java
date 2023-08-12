@@ -20,6 +20,8 @@ public class Salesorder {
     private Integer weight;
     private Integer refquoid;
     private String status;
-    private String issue;
+    private String invissue;
+    private String delissue;
     private String createdate;
+    private Double acvalue;
 }
