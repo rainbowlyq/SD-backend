@@ -23,5 +23,4 @@ public class Salesorder {
     private String invissue;
     private String delissue;
     private String createdate;
-    private Double acvalue;
 }
