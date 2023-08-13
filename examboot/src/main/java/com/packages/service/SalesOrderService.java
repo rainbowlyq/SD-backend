@@ -50,6 +50,9 @@ public class SalesOrderService {
     }
     public int insertSalesOrder(Salesorder salesorder) {
         salesorder.setCreatedate(DateFormat.getTimeNow());
+        salesorder.setStatus("ORD");
+        salesorder.setDelissue("NPIC");
+        salesorder.setInvissue("NINV");
         int rowsAffected = salesorderMapper.insert(salesorder);
         if (rowsAffected > 0) {
             return salesorder.getSalordid(); // 返回插入后生成的id
