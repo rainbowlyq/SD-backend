@@ -2,10 +2,8 @@ package com.packages.service;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.packages.controller.PickingController;
-import com.packages.entity.Delivery;
-import com.packages.entity.DeliveryItem;
-import com.packages.entity.GoodsIssue;
-import com.packages.entity.Salesorder;
+import com.packages.entity.*;
+import com.packages.mapper.CustomerMapper;
 import com.packages.mapper.DeliveryMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -33,6 +31,9 @@ public class DeliveryService extends BaseService<DeliveryMapper, Delivery> {
     private PickingController pickingController;
 
     @Autowired
+    private CustomerMapper customerMapper;
+
+    @Autowired
     private JdbcTemplate jdbcTemplate;
 
     @Override
@@ -49,21 +50,42 @@ public class DeliveryService extends BaseService<DeliveryMapper, Delivery> {
             return "该订单不存在，无法创建发货单";
 
         }
+
+        Customer customer = customerMapper.selectOne(Wrappers.lambdaQuery(new Customer())
+                .eq(Customer::getSrchterm, saleOrder.getCusref())
+                .eq(Customer::getSaleOrg, saleOrder.getSorg())
+                .eq(Customer::getDistrChannel, saleOrder.getDischannel())
+                .eq(Customer::getDivision, saleOrder.getDivision())
+        );
+
+        Integer maxPartDeliveries = customer.getMaxPartDeliveries();
+
+        if (maxPartDeliveries != null) {
+            Delivery delivery1 = new Delivery();
+            delivery1.setStatus(null);
+            if (maxPartDeliveries <= count(Wrappers.lambdaQuery(delivery1).eq(Delivery::getSalordid, salordid))) {
+                return "已达到该订单最大发货次数，无法新增发货单，请检查已创建的发货单";
+            }
+        }
+
+
         HashMap<String, Object> pickingPreview = new HashMap<>();
         pickingPreview.put("salordid", salordid);
-        List<Map<String, Object>> preview = pickingController.preview(pickingPreview);
+        List<Map<String, Object>> preview = pickingController.preview0(pickingPreview);
         for (Map<String, Object> p : preview) {
             Number maxQuantity = (Number) p.get("maxQuantity");
             if (maxQuantity != null && maxQuantity.longValue() > 0) {
 
-                delivery.setShiptoparty(saleOrder.getShiptoparty());
-                if (delivery.getDelid() == null) {
-                    save(delivery);
-                } else {
-                    updateById(delivery);
-                }
+                    delivery.setShiptoparty(saleOrder.getShiptoparty());
+                    if (delivery.getDelid() == null) {
+                        save(delivery);
+                    } else {
+                        updateById(delivery);
+                    }
 
-                return null;
+                    return null;
+
+
             }
         }
 

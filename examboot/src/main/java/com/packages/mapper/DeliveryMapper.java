@@ -43,6 +43,7 @@ public interface DeliveryMapper extends BaseMapper<Delivery> {
             "</where>",
 
 
+            "order by status asc, delid desc",
             "</script>"
     })
     List<Delivery> search(Delivery delivery);
