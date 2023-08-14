@@ -68,7 +68,12 @@ public class PickingController extends BaseController<Picking, PickingService, P
         if (maxPartDeliveries != null) {
             Delivery delivery = new Delivery();
             delivery.setStatus(null);
-            if (maxPartDeliveries <= deliveryService.count(Wrappers.lambdaQuery(delivery).eq(Delivery::getSalordid, ((Number) data.get("salordid")).intValue()))) {
+            if (maxPartDeliveries <= deliveryService.count(Wrappers.lambdaQuery(delivery)
+                    .eq(Delivery::getSalordid, ((Number) data.get("salordid")).intValue()))
+                    &&
+                    deliveryService.count(Wrappers.lambdaQuery(delivery)
+                            .eq(Delivery::getSalordid, ((Number) data.get("salordid")).intValue())
+                            .lt(Delivery::getStatus, 3)) <= 1) {
                 res.put("msg", "该发货单为该订单最后一次发货机会，请全部发货");
             }
         }
