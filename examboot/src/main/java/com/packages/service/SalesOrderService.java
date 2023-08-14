@@ -61,21 +61,30 @@ public class SalesOrderService {
         }
     }
 
-    public int updateSell(List<Sell> sells) {
+    public int updateSell(Sell sell) {
         int count=0;
+        /*
         for (Sell sell : sells) {
             UpdateWrapper<Sell> updateWrapper = new UpdateWrapper<>();
             updateWrapper.eq("salordid", sell.getSalordid());
             updateWrapper.eq("matid", sell.getMatid());
             count+=sellMapper.update(sell, updateWrapper);
         }
+         */
+        UpdateWrapper<Sell> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("salordid", sell.getSalordid());
+        updateWrapper.eq("matid", sell.getMatid());
+        count+=sellMapper.update(sell, updateWrapper);
         return count;
     }
-    public int insertSell(List<Sell> sells) {
+    public int insertSell(Sell sell) {
         int count=0;
+        /*
         for (Sell sell : sells) {
             count+=sellMapper.insert(sell);
         }
+         */
+        sellMapper.insert(sell);
         return count;
     }
 

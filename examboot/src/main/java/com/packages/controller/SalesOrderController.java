@@ -38,12 +38,14 @@ public class SalesOrderController {
     }
 
     @PostMapping("/updateItem")
-    public int updateItem(@RequestBody List<Sell> sells) {
-        return salesOrderService.updateSell(sells);
+    //public int updateItem(@RequestBody List<Sell> sells) {return salesOrderService.updateSell(sells);}
+    public int updateItem(@RequestBody Sell sell) {
+        return salesOrderService.updateSell(sell);
     }
     @PostMapping("/insertItem")
-    public int insertItem(@RequestBody List<Sell> sells) {
-        return salesOrderService.insertSell(sells);
+    //public int insertItem(@RequestBody List<Sell> sells) {return salesOrderService.insertSell(sells);}
+    public int insertItem(@RequestBody Sell sell) {
+        return salesOrderService.insertSell(sell);
     }
     @GetMapping("/getSalesOrderItem")
     public List<Map<String, Object>> getSalesOrderItem(@RequestParam("salordid") String salordid) {
