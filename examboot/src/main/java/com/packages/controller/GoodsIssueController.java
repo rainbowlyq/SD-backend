@@ -60,7 +60,8 @@ public class GoodsIssueController extends BaseController<GoodsIssue, GoodsIssueS
     @PostMapping("/save")
     @Transactional
     public void save(@RequestBody GoodsIssue gi) {
-        createOrUpdate(gi);
+        gi.setGiid(null);
+        service.save(gi);
         Delivery delivery = new Delivery();
         delivery.setStatus(null);
         deliveryService.update(Wrappers.lambdaUpdate(delivery)
