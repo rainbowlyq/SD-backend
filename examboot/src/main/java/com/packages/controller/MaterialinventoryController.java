@@ -20,4 +20,12 @@ import java.util.stream.Stream;
 public class MaterialinventoryController {
     @Resource
     private MaterialinventoryService materialinventoryService;
+
+    @PostMapping("/saleupdate")
+    public int saleupdate(@RequestParam("param1") String param1,
+                          @RequestParam("param2") String param2,
+                          @RequestParam("param3") String param3,
+                          @RequestParam("param4") int quantity) {
+        return materialinventoryService.sdupdate(param1,param2,param3,quantity);
+    }
 }

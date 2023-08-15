@@ -23,4 +23,11 @@ public class MaterialinventoryService {
     public MaterialinventoryService(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
+    public int sdupdate(String param1,String param2,String param3,Integer qua ){
+        String sql = "UPDATE materialinventory\n" +
+                "SET Unrestricted = Unrestricted-?,SalesOrder=?\n" +
+                "WHERE Mid=? AND Plant=? AND StorageLoc=?";
+        int rowsAffected = jdbcTemplate.update(sql, qua, qua, param1, param2, param3);
+        return rowsAffected;
+    }
 }
