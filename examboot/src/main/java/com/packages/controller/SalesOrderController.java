@@ -51,7 +51,10 @@ public class SalesOrderController {
     public List<Map<String, Object>> getSalesOrderItem(@RequestParam("salordid") String salordid) {
         return salesOrderService.findSalesOrderItemBySalordid(salordid);
     }
-
+    @GetMapping("/getSearchCombination")
+    public Map<String, List<Map<String, Object>>>  getSearchCombination() {
+        return salesOrderService.getSearchCombination();
+    }
 
     @GetMapping("/getfulall")
     public List<Map<String,Object>> getfulall(){

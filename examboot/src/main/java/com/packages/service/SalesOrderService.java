@@ -14,6 +14,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 @Service
@@ -97,6 +98,20 @@ public class SalesOrderService extends BaseService<SalesorderMapper, Salesorder>
         RowMapper<Map<String, Object>> rowMapper = QueryUtils.genericRowMapper();
         List<Map<String, Object>> result = jdbcTemplate.query(sql, new Object[]{salordid}, rowMapper);
         return result;
+    }
+    public Map<String, List<Map<String, Object>>> getSearchCombination(){
+        String sql1 = "SELECT DISTINCT sorg FROM salesorder" ;
+        String sql2 = "SELECT DISTINCT dischannel FROM salesorder" ;
+        String sql3 = "SELECT DISTINCT division FROM salesorder" ;
+        RowMapper<Map<String, Object>> rowMapper = QueryUtils.genericRowMapper();
+        List<Map<String, Object>> sorg =jdbcTemplate.query(sql1, rowMapper);
+        List<Map<String, Object>> dischannel= jdbcTemplate.query(sql2, rowMapper);
+        List<Map<String, Object>> division= jdbcTemplate.query(sql3, rowMapper);
+        Map<String, List<Map<String, Object>>> combinationMap = new HashMap<>();
+        combinationMap.put("sorg",sorg);
+        combinationMap.put("dischannel", dischannel);
+        combinationMap.put("division", division);
+        return combinationMap;
     }
 
     public List<Map<String,Object>> findfulfillment(){
