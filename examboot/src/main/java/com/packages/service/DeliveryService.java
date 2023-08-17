@@ -8,7 +8,6 @@ import com.packages.mapper.DeliveryMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
@@ -36,13 +35,14 @@ public class DeliveryService extends BaseService<DeliveryMapper, Delivery> {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+
+
     @Override
     public List<Delivery> search(Delivery delivery) {
         return getBaseMapper().search(delivery);
     }
 
     @Override
-    @Transactional
     public String createOrUpdate(Delivery delivery) {
         Integer salordid = delivery.getSalordid();
         Salesorder saleOrder = salesOrderService.getBySalordId(salordid);
@@ -93,7 +93,6 @@ public class DeliveryService extends BaseService<DeliveryMapper, Delivery> {
     }
 
     @Override
-    @Transactional
     public void deleteById(Delivery delivery) {
         Long delid = delivery.getDelid();
         if (delid == null) {
@@ -104,6 +103,12 @@ public class DeliveryService extends BaseService<DeliveryMapper, Delivery> {
                 "                                                 inner join material_sd ms on p.matid = ms.msdId and p.delid =  " + delid +
                 "                                       group by ms.mid, ms.delstorplant, ms.storageloc) picked on mi.Mid = picked.mid and mi.Plant = picked.delstorplant and mi.StorageLoc = picked.storageloc " +
                 "set mi.SchedForDel = mi.SchedForDel - picked.quantity");
+
+        jdbcTemplate.update("update materialinventory mi inner join (select ms.mid, ms.delstorplant, ms.storageloc, ifnull(count(p.quantity), 0) quantity " +
+                "                                        from picking p " +
+                "                                                 inner join material_sd ms on p.matid = ms.msdId and p.delid =  " + delid +
+                "                                       group by ms.mid, ms.delstorplant, ms.storageloc) picked on mi.Mid = picked.mid and mi.Plant = picked.delstorplant and mi.StorageLoc = picked.storageloc " +
+                "set mi.SalesOrder = mi.SalesOrder + picked.quantity");
         removeById(delid);
         DeliveryItem deleteDeliveryItem = new DeliveryItem();
         deleteDeliveryItem.setDelid(delid);
@@ -111,6 +116,9 @@ public class DeliveryService extends BaseService<DeliveryMapper, Delivery> {
         GoodsIssue deleteGi = new GoodsIssue();
         deleteGi.setDelid(delid);
         giService.remove(Wrappers.query(deleteGi));
+
+        Salesorder saleorder = salesOrderService.getById(getById(delivery.getDelid()).getSalordid());
+        salesOrderService.updateSalesOrderStatus(saleorder);
     }
     
     public List<Delivery> findAllBySalOrdId(int salordid){

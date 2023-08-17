@@ -17,7 +17,7 @@ import org.springframework.util.MultiValueMap;
 import java.util.List;
 import java.util.Map;
 @Service
-public class SalesOrderService {
+public class SalesOrderService extends BaseService<SalesorderMapper, Salesorder> {
     private final JdbcTemplate jdbcTemplate;
     private final SalesorderMapper salesorderMapper;
     private final SellMapper sellMapper;
@@ -141,6 +141,7 @@ public class SalesOrderService {
     DeliveryService deliveryService;
     @Autowired
     InvoiceService invoiceService;
+
     public void updateSalesOrderStatus(Salesorder salesorder){
         Integer salordid=salesorder.getSalordid();
         salesorder.setDeliveryList(deliveryService.findAllBySalOrdId(salordid));

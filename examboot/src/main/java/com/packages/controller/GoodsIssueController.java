@@ -7,9 +7,9 @@ import com.packages.entity.Picking;
 import com.packages.mapper.GoodsIssueMapper;
 import com.packages.service.DeliveryService;
 import com.packages.service.GoodsIssueService;
+import com.packages.service.SalesOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,7 +26,8 @@ public class GoodsIssueController extends BaseController<GoodsIssue, GoodsIssueS
     private JdbcTemplate jdbcTemplate;
     @Autowired
     private DeliveryService deliveryService;
-
+    @Autowired
+    private SalesOrderService salesOrderService;
 
     @PostMapping("/preview")
     public GoodsIssue preview(@RequestBody GoodsIssue gi) {
@@ -58,7 +59,6 @@ public class GoodsIssueController extends BaseController<GoodsIssue, GoodsIssueS
     }
 
     @PostMapping("/save")
-    @Transactional
     public void save(@RequestBody GoodsIssue gi) {
         gi.setGiid(null);
         service.save(gi);
@@ -69,5 +69,20 @@ public class GoodsIssueController extends BaseController<GoodsIssue, GoodsIssueS
                 .set(Delivery::getStatus, 3)
 
         );
+
+        salesOrderService.updateSalesOrderStatus(salesOrderService.getById(deliveryService.getById(gi.getDelid()).getSalordid()));
+
+
+        String sql = "update materialinventory mi inner join (select ms.mid, ms.storageloc, ms.delstorplant, sum(p.quantity) quantity" +
+                "                                        from picking p" +
+                "                                                 inner join material_sd ms on ms.msdId = p.matid" +
+                "                                        where delid = " + gi.getDelid() +
+                "                                        group by ms.mid, ms.storageloc, ms.delstorplant) m on mi.Mid = m.mid and" +
+                "                                                                                              m.storageloc =" +
+                "                                                                                              mi.StorageLoc and" +
+                "                                                                                              m.delstorplant =" +
+                "                                                                                              mi.StorageLoc" +
+                "set mi.SchedForDel = mi.SchedForDel - m.quantity";
+        jdbcTemplate.update(sql);
     }
 }
