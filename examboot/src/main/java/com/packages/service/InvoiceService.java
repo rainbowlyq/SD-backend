@@ -86,6 +86,7 @@ public class InvoiceService extends BaseService<InvoiceMapper, Invoice> {
         // }
         invoice.setUpdateDatetime(LocalDateTime.now());
         invoiceMapper.insert(invoice);
+        salesOrderService.updateSalesOrderStatus(salesorder);
         return invoice;
     }
     
@@ -94,6 +95,8 @@ public class InvoiceService extends BaseService<InvoiceMapper, Invoice> {
     public void invalidateInvoice(Invoice invoice) {
         invoice.setStatus(0);
         invoiceMapper.updateById(invoice);
+        invoice = updateProperties(invoice);
+        salesOrderService.updateSalesOrderStatus(invoice.getSalesorder());
     }
     
     public List<Invoice> findAllInvoices(Map<String, String> params) {

@@ -8,6 +8,7 @@ import com.packages.mapper.SalesorderMapper;
 import com.packages.mapper.SellMapper;
 import com.packages.utils.DateFormat;
 import com.packages.utils.QueryUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
@@ -134,5 +135,20 @@ public class SalesOrderService {
 
     public Salesorder getBySalordId(Integer salordid) {
         return salesorderMapper.selectById(salordid);
+    }
+    
+    @Autowired
+    DeliveryService deliveryService;
+    @Autowired
+    InvoiceService invoiceService;
+    public void updateSalesOrderStatus(Salesorder salesorder){
+        Integer salordid=salesorder.getSalordid();
+        salesorder.setDeliveryList(deliveryService.findAllBySalOrdId(salordid));
+        Map<String, String> salordParams = new java.util.HashMap<>();
+        salordParams.put("salordid", salordid.toString());
+        salesorder.setInvoiceList(invoiceService.findAllInvoices(salordParams));
+        if(salesorder.updateLists()){
+            updateSalesOrder(salesorder);
+        }
     }
 }

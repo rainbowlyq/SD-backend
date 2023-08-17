@@ -48,6 +48,6 @@ public interface DeliveryMapper extends BaseMapper<Delivery> {
     })
     List<Delivery> search(Delivery delivery);
     
-    @Select("select * from invoice where salordid = #{salordid};")
+    @Select("select * from delivery where salordid = #{salordid};")
     List<Delivery> findAllBySalOrdId(int salordid);
 }
