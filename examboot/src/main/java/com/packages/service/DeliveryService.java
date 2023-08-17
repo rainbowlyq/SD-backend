@@ -98,13 +98,13 @@ public class DeliveryService extends BaseService<DeliveryMapper, Delivery> {
         if (delid == null) {
             return;
         }
-        jdbcTemplate.update("update materialinventory mi inner join (select ms.mid, ms.delstorplant, ms.storageloc, ifnull(count(p.quantity), 0) quantity " +
+        jdbcTemplate.update("update materialinventory mi inner join (select ms.mid, ms.delstorplant, ms.storageloc, ifnull(sum(p.quantity), 0) quantity " +
                 "                                        from picking p " +
                 "                                                 inner join material_sd ms on p.matid = ms.msdId and p.delid =  " + delid +
                 "                                       group by ms.mid, ms.delstorplant, ms.storageloc) picked on mi.Mid = picked.mid and mi.Plant = picked.delstorplant and mi.StorageLoc = picked.storageloc " +
                 "set mi.SchedForDel = mi.SchedForDel - picked.quantity");
 
-        jdbcTemplate.update("update materialinventory mi inner join (select ms.mid, ms.delstorplant, ms.storageloc, ifnull(count(p.quantity), 0) quantity " +
+        jdbcTemplate.update("update materialinventory mi inner join (select ms.mid, ms.delstorplant, ms.storageloc, ifnull(sum(p.quantity), 0) quantity " +
                 "                                        from picking p " +
                 "                                                 inner join material_sd ms on p.matid = ms.msdId and p.delid =  " + delid +
                 "                                       group by ms.mid, ms.delstorplant, ms.storageloc) picked on mi.Mid = picked.mid and mi.Plant = picked.delstorplant and mi.StorageLoc = picked.storageloc " +
