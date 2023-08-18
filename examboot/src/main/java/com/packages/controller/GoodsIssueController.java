@@ -76,12 +76,12 @@ public class GoodsIssueController extends BaseController<GoodsIssue, GoodsIssueS
         String sql = "update materialinventory mi inner join (select ms.mid, ms.storageloc, ms.delstorplant, sum(p.quantity) quantity" +
                 "                                        from picking p" +
                 "                                                 inner join material_sd ms on ms.msdId = p.matid" +
-                "                                        where delid = " + gi.getDelid() +
+                "                                        where p.delid = " + gi.getDelid() +
                 "                                        group by ms.mid, ms.storageloc, ms.delstorplant) m on mi.Mid = m.mid and" +
                 "                                                                                              m.storageloc =" +
                 "                                                                                              mi.StorageLoc and" +
                 "                                                                                              m.delstorplant =" +
-                "                                                                                              mi.StorageLoc" +
+                "                                                                                              mi.StorageLoc " +
                 "set mi.SchedForDel = mi.SchedForDel - m.quantity";
         jdbcTemplate.update(sql);
     }
