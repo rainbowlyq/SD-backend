@@ -26,7 +26,6 @@ public class InvoiceController extends BaseController<Invoice, InvoiceService, I
     
     @PostMapping("/invalidate")
     public int invalidateInvoiceById(@RequestBody Invoice invoice){
-        System.out.println(invoice.getInvId());
         try{
             invoice = invoiceService.getById(invoice);
             invoiceService.invalidateInvoice(invoice);

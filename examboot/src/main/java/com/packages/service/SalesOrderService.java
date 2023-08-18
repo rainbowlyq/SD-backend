@@ -39,7 +39,7 @@ public class SalesOrderService extends BaseService<SalesorderMapper, Salesorder>
         for (Map.Entry<String, List<String>> entry : params.entrySet()) {
             String paramName = entry.getKey();
             List<String> paramValues = entry.getValue();
-            if (paramValues.size() > 0 && paramValues.get(0) != "") {
+            if (paramValues.size() > 0 && !"".equals(paramValues.get(0))) {
                 queryWrapper.in(paramName, paramValues.toArray());
             }
         }
@@ -105,8 +105,7 @@ public class SalesOrderService extends BaseService<SalesorderMapper, Salesorder>
                 "INNER JOIN material_sd m ON e.matid = m.msdId " +
                 "WHERE i.salordid = ?";
         RowMapper<Map<String, Object>> rowMapper = QueryUtils.genericRowMapper();
-        List<Map<String, Object>> result = jdbcTemplate.query(sql, new Object[]{salordid}, rowMapper);
-        return result;
+        return jdbcTemplate.query(sql, new Object[]{salordid}, rowMapper);
     }
     
     public Map<String, List<Map<String, Object>>> getSearchCombination() {
@@ -154,8 +153,7 @@ public class SalesOrderService extends BaseService<SalesorderMapper, Salesorder>
                 "from salesorder,customer\n" +
                 "where salesorder.soldtoparty=customer.bp";
         RowMapper<Map<String, Object>> rowMapper = QueryUtils.genericRowMapper();
-        List<Map<String, Object>> result = jdbcTemplate.query(sql, rowMapper);
-        return result;
+        return jdbcTemplate.query(sql, rowMapper);
     }
     
     public Salesorder getBySalordId(Integer salordid) {
@@ -188,8 +186,6 @@ public class SalesOrderService extends BaseService<SalesorderMapper, Salesorder>
         salordParams1.put("salordid", salordid.toString());
         salesorder.setSellList(sellMapper.selectByMap(salordParams1));
         if (salesorder.updateLists()) {
-            System.out.println(salesorder.getDelissue());
-            System.out.println(salesorder.getInvissue());
             updateSalesOrder(salesorder);
         }
         return salesorder;
