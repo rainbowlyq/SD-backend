@@ -150,7 +150,7 @@ public class SalesOrderService extends BaseService<SalesorderMapper, Salesorder>
                 "    WHEN `status` = 'DLV' THEN 'In Delivery'\n" +
                 "    WHEN `status` = 'FIN' THEN 'Finished'\n" +
                 "        ELSE `status`\n" +
-                "        END AS sta\n" +
+                "        END AS status\n" +
                 "from salesorder,customer\n" +
                 "where salesorder.soldtoparty=customer.bp";
         RowMapper<Map<String, Object>> rowMapper = QueryUtils.genericRowMapper();
