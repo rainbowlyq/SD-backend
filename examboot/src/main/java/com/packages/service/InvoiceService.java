@@ -42,47 +42,48 @@ public class InvoiceService extends BaseService<InvoiceMapper, Invoice> {
         Invoice invoice = new Invoice();
         Delivery delivery = deliveryService.getById(delid);
         delivery.setStatus(4);
-        deliveryService.save(delivery);
+        deliveryMapper.updateById(delivery);
         invoice.setDelId(delivery.getDelid());
         invoice.setSalOrdId(delivery.getSalordid());
-        if (isWholeSalesOrder(delivery)) {
-            // 未分批发货直接使用salesorder的netvalue
-            invoice.setNetValue(salesOrderService.getBySalordId(invoice.getSalOrdId()).getNetvalue());
-        } else {
-            // 计算订单折扣比例
-            Sell sell = new Sell();
-            sell.setSalordid(invoice.getSalOrdId());
-            List<Sell> sells = sellService.search(sell);
-            Double beforeDiscount = 0.;
-            for (Sell s : sells) {
-                beforeDiscount += s.getConditonprice() * s.getOrdquantity();
-            }
-            double discountRate = salesOrderService.getBySalordId(invoice.getSalOrdId()).getNetvalue() / beforeDiscount;
-            
-            // 计算均摊后价格
-            Map<String, Object> map = new HashMap<>();
-            map.put("delid", invoice.getDelId());
-            List<Picking> pickings = pickingMapper.selectByMap(map);
-            double netValue = 0.;
-            for (Picking picking : pickings) {
-                sell.setMatid(picking.getMatid());
-                sells = sellService.search(sell);
-                if (sells.size() == 1) {
-                    sell = sells.get(0);
-                    netValue += sell.getConditonprice() * sell.getOrdquantity();
-                } else {
-                    System.out.println("more than 1 sell");
-                    //todo
-                    return invoice;
-                }
-            }
-            invoice.setNetValue(netValue * discountRate);
+        // if (isWholeSalesOrder(delivery)) {
+        //     // 未分批发货直接使用salesorder的netvalue
+        //     invoice.setNetValue(salesOrderService.getBySalordId(invoice.getSalOrdId()).getNetvalue());
+        // } else {
+        // 计算订单折扣比例
+        Sell sell = new Sell();
+        sell.setSalordid(invoice.getSalOrdId());
+        List<Sell> sells = sellService.search(sell);
+        Double beforeDiscount = 0.;
+        for (Sell s : sells) {
+            beforeDiscount += s.getConditonprice() * s.getOrdquantity();
         }
+        double discountRate = salesOrderService.getBySalordId(invoice.getSalOrdId()).getNetvalue() / beforeDiscount;
+        
+        // 计算均摊后价格
+        Map<String, Object> map = new HashMap<>();
+        map.put("delid", invoice.getDelId());
+        List<Picking> pickings = pickingMapper.selectByMap(map);
+        double netValue = 0.;
+        for (Picking picking : pickings) {
+            sell.setMatid(picking.getMatid());
+            sells = sellService.search(sell);
+            if (sells.size() == 1) {
+                sell = sells.get(0);
+                netValue += sell.getConditonprice() * sell.getOrdquantity();
+            } else {
+                System.out.println("more than 1 sell");
+                return invoice;
+            }
+        }
+        invoice.setNetValue(netValue * discountRate);
+        // }
         // todo
         invoice.setShipToParty(delivery.getShiptoparty());
         invoice.setUpdateDatetime(LocalDateTime.now());
-        invoiceMapper.insert(invoice);
-        salesOrderService.updateSalesOrderStatus(salesOrderService.getById(delivery.getSalordid()));
+        if(invoice.getNetValue()>0){
+            invoiceMapper.insert(invoice);
+            salesOrderService.updateSalesOrderStatus(salesOrderService.getById(delivery.getSalordid()));
+        }
         return invoice;
     }
     
@@ -95,10 +96,10 @@ public class InvoiceService extends BaseService<InvoiceMapper, Invoice> {
         invoice.setNetValue(getRemaining(salesorder));
         invoice.setUpdateDatetime(LocalDateTime.now());
         invoiceMapper.insert(invoice);
-        for(Delivery delivery:deliveryService.findAllBySalOrdId(salOrdId)){
-            if(delivery.getStatus()<4){
+        for (Delivery delivery : deliveryService.findAllBySalOrdId(salOrdId)) {
+            if (delivery.getStatus() < 4) {
                 delivery.setStatus(4);
-                deliveryService.save(delivery);
+                deliveryMapper.updateById(delivery);
             }
         }
         salesOrderService.updateSalesOrderStatus(salesorder);
@@ -109,13 +110,13 @@ public class InvoiceService extends BaseService<InvoiceMapper, Invoice> {
     public Invoice createInvoice(Invoice invoice) {
         Salesorder salesorder = salesOrderService.getBySalordId(invoice.getSalOrdId());
         // todo
-        if (getRemaining(salesorder)==0) {
+        if (getRemaining(salesorder) == 0) {
             List<Delivery> deliveries = deliveryService.findAllBySalOrdId(invoice.getSalOrdId());
-            for(Delivery delivery:deliveries){
+            for (Delivery delivery : deliveries) {
                 delivery.setStatus(4);
-                deliveryService.save(delivery);
+                deliveryMapper.updateById(delivery);
             }
-            if(deliveries.size()==1){
+            if (deliveries.size() == 1) {
                 invoice.setDelId(deliveries.get(0).getDelid());
             }
         }
@@ -186,7 +187,7 @@ public class InvoiceService extends BaseService<InvoiceMapper, Invoice> {
         invoice.setShipToPartyCustomer(customerMapper.selectById(invoice.getShipToParty()));
         Salesorder salesorder = salesOrderService.getById(invoice.getSalOrdId());
         invoice.setSoldToPartyCustomer(customerMapper.selectById(salesorder.getSoldtoparty()));
-        if(invoice.getDelId()!=null){
+        if (invoice.getDelId() != null) {
             invoice.setDelivery(deliveryMapper.selectById(invoice.getDelId()));
             Picking p = new Picking();
             p.setDelid(invoice.getDelId());
@@ -206,7 +207,7 @@ public class InvoiceService extends BaseService<InvoiceMapper, Invoice> {
         List<Invoice> invoices = search(invoice);
         Double invoiced = 0.;
         for (Invoice i : invoices) {
-            if(i.getStatus()>0){
+            if (i.getStatus() > 0) {
                 invoiced += i.getNetValue();
             }
         }

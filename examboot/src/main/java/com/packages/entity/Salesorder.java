@@ -132,10 +132,8 @@ public class Salesorder {
         System.out.println(newDelIssue);
         System.out.println(newInvIssue);
         if (Objects.equals(newDelIssue, delissue) && Objects.equals(newInvIssue, invissue)) {
-            System.out.println(111);
             return updateStatus();
         } else {
-            System.out.println(222);
             delissue = newDelIssue;
             invissue = newInvIssue;
             updateStatus();

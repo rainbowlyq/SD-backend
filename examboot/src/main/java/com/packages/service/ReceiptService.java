@@ -25,7 +25,7 @@ public class ReceiptService extends BaseService<ReceiptMapper, Receipt> {
     @Autowired
     private SalesOrderService salesOrderService;
     
-    public void createReceipt(Receipt receipt) {
+    public Receipt createReceipt(Receipt receipt) {
         receipt.setDatetime(LocalDateTime.now());
         save(receipt);
         Invoice invoice = invoiceService.getById(receipt.getInvId());
@@ -34,6 +34,7 @@ public class ReceiptService extends BaseService<ReceiptMapper, Receipt> {
             salesOrderService.updateSalesOrderStatus(salesOrderService.getById(invoice.getSalOrdId()));
         }
         invoiceService.saveOrUpdate(invoice);
+        return receipt;
     }
     
     public Double getAmountByInvId(Integer invId) {

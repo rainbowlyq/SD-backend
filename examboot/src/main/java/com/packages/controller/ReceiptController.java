@@ -19,8 +19,8 @@ public class ReceiptController extends BaseController<Receipt, ReceiptService, R
     SalesOrderService salesOrderService;
     
     @PostMapping("/create")
-    public void createReceiptByInvoice(@RequestBody Receipt receipt) {
-        receiptService.createReceipt(receipt);
+    public Receipt createReceiptByInvoice(@RequestBody Receipt receipt) {
+        return receiptService.createReceipt(receipt);
     }
     
     @PostMapping("/getAmountByInvId")
@@ -40,7 +40,7 @@ public class ReceiptController extends BaseController<Receipt, ReceiptService, R
     public void test(@PathVariable Integer salordid) {
         Salesorder salesorder = salesOrderService.getBySalordId(salordid);
         System.out.println(salesorder.getDelissue() + salesorder.getInvissue());
-        salesOrderService.updateSalesOrderStatus(salesorder);
+        salesorder = salesOrderService.updateSalesOrderStatus(salesorder);
         System.out.println(salesorder.getDelissue() + salesorder.getInvissue());
     }
 }
