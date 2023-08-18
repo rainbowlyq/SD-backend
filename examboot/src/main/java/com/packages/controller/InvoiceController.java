@@ -1,6 +1,7 @@
 package com.packages.controller;
 
 import com.packages.entity.Invoice;
+import com.packages.entity.Salesorder;
 import com.packages.mapper.InvoiceMapper;
 import com.packages.service.InvoiceService;
 import org.springframework.web.bind.annotation.*;
@@ -54,5 +55,10 @@ public class InvoiceController extends BaseController<Invoice, InvoiceService, I
         Invoice invoice = invoiceMapper.selectById(invid);
         invoice=invoiceService.updateProperties(invoice);
         return invoice;
+    }
+    
+    @PostMapping("/getRemaining")
+    public double getRemaining(@RequestBody Salesorder salesorder){
+        return invoiceService.getRemaining(salesorder);
     }
 }

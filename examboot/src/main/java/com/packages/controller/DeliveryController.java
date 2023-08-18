@@ -2,10 +2,7 @@ package com.packages.controller;
 
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.packages.entity.Delivery;
-import com.packages.entity.DeliveryItem;
-import com.packages.entity.Picking;
-import com.packages.entity.Sell;
+import com.packages.entity.*;
 import com.packages.mapper.DeliveryMapper;
 import com.packages.service.DeliveryItemService;
 import com.packages.service.DeliveryService;
@@ -20,24 +17,23 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/delivery")
 public class DeliveryController extends BaseController<Delivery, DeliveryService, DeliveryMapper> {
-
-
     @Autowired
     private DeliveryItemService deliveryItemService;
-
+    @Autowired
+    private DeliveryService deliveryService;
     @Autowired
     private PickingService pickingService;
-
     @Autowired
     private JdbcTemplate jdbcTemplate;
-
     @Autowired
     private SalesOrderService salesOrderService;
-
+    
     @PostMapping("/pick")
     public String pick(@RequestBody Delivery delivery) {
         Long delid = delivery.getDelid();
@@ -47,7 +43,7 @@ public class DeliveryController extends BaseController<Delivery, DeliveryService
         if (pickingDate == null) {
             pickingDate = LocalDate.now();
         }
-
+        
         for (Sell item : delivery.getItems()) {
             Integer ordquantity = item.getOrdquantity();
             if (ordquantity == null || ordquantity < 0) {
@@ -59,8 +55,8 @@ public class DeliveryController extends BaseController<Delivery, DeliveryService
             deliveryItem.setQuantity(ordquantity);
             deliveryItem.setAvgvalue(item.getPrice());
             deliveryItems.add(deliveryItem);
-
-
+            
+            
             Picking picking = new Picking();
             picking.setDelid(delid);
             picking.setMatid(item.getMatid());
@@ -73,19 +69,19 @@ public class DeliveryController extends BaseController<Delivery, DeliveryService
         if (CollectionUtils.isEmpty(pickings)) {
             return "未选择分拣物料";
         }
-
+        
         jdbcTemplate.update("update materialinventory mi inner join (select ms.mid, ms.delstorplant, ms.storageloc, ifnull(sum(p.quantity), 0) quantity " +
                 "                                        from picking p " +
                 "                                                 inner join material_sd ms on p.matid = ms.msdId and p.delid =  " + delid +
                 "                                       group by ms.mid, ms.delstorplant, ms.storageloc) picked on mi.Mid = picked.mid and mi.Plant = picked.delstorplant and mi.StorageLoc = picked.storageloc " +
                 "set mi.SchedForDel = mi.SchedForDel - picked.quantity");
-
+        
         jdbcTemplate.update("update materialinventory mi inner join (select ms.mid, ms.delstorplant, ms.storageloc, ifnull(sum(p.quantity), 0) quantity " +
                 "                                        from picking p " +
                 "                                                 inner join material_sd ms on p.matid = ms.msdId and p.delid =  " + delid +
                 "                                       group by ms.mid, ms.delstorplant, ms.storageloc) picked on mi.Mid = picked.mid and mi.Plant = picked.delstorplant and mi.StorageLoc = picked.storageloc " +
                 "set mi.SalesOrder = mi.SalesOrder + picked.quantity");
-
+        
         deliveryItemService.remove(Wrappers.lambdaQuery(new DeliveryItem()).eq(DeliveryItem::getDelid, delid));
         deliveryItemService.saveBatch(deliveryItems);
         pickingService.remove(Wrappers.lambdaQuery(new Picking()).eq(Picking::getDelid, delid));
@@ -95,7 +91,7 @@ public class DeliveryController extends BaseController<Delivery, DeliveryService
                 "                                                 inner join material_sd ms on p.matid = ms.msdId and p.delid =  " + delid +
                 "                                       group by ms.mid, ms.delstorplant, ms.storageloc) picked on mi.Mid = picked.mid and mi.Plant = picked.delstorplant and mi.StorageLoc = picked.storageloc " +
                 "set mi.SchedForDel = mi.SchedForDel + picked.quantity");
-
+        
         jdbcTemplate.update("update materialinventory mi inner join (select ms.mid, ms.delstorplant, ms.storageloc, ifnull(sum(p.quantity), 0) quantity " +
                 "                                        from picking p " +
                 "                                                 inner join material_sd ms on p.matid = ms.msdId and p.delid =  " + delid +
@@ -103,13 +99,13 @@ public class DeliveryController extends BaseController<Delivery, DeliveryService
                 "set mi.SalesOrder = mi.SalesOrder - picked.quantity");
         delivery.setStatus(2);
         service.updateById(delivery);
-
-
+        
+        
         salesOrderService.updateSalesOrderStatus(salesOrderService.getById(service.getById(delivery.getDelid()).getSalordid()));
         return null;
     }
-
-
+    
+    
     @PostMapping("/updateStatus")
     public void updateStatus(@RequestBody Delivery delivery) {
         Delivery d = new Delivery();
@@ -118,8 +114,15 @@ public class DeliveryController extends BaseController<Delivery, DeliveryService
                 .eq(Delivery::getDelid, delivery.getDelid())
                 .set(Delivery::getStatus, delivery.getStatus())
         );
-
+        
         salesOrderService.updateSalesOrderStatus(salesOrderService.getById(service.getById(delivery.getDelid()).getSalordid()));
-
+        
+    }
+    
+    @PostMapping("/searchNotInvoiced")
+    public List<Delivery> searchNotInvoiced(@RequestBody Delivery delivery) {
+        List<Delivery> deliveries = deliveryService.search(delivery);
+        deliveries = deliveries.stream().filter(del->del.getStatus()<4).collect(Collectors.toList());
+        return deliveries;
     }
 }
