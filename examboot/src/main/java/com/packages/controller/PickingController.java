@@ -24,7 +24,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/picking")
 public class PickingController extends BaseController<Picking, PickingService, PickingMapper> {
-
+    
     @Autowired
     JdbcTemplate jdbcTemplate;
     @Autowired
@@ -33,10 +33,10 @@ public class PickingController extends BaseController<Picking, PickingService, P
     private SalesOrderService salesOrderService;
     @Autowired
     private DeliveryService deliveryService;
-
+    
     @PostMapping("/preview")
     public Map<String, Object> preview(@RequestBody Map<String, Object> data) {
-
+        
         HashMap<String, Object> res = new HashMap<>();
         String sql = "SELECT e.*, m.*, (e.ordquantity - ifnull(picked.quantity, 0)) maxQuantity, ifnull(thelf_picked.quantity, 0) quantity " +
                 "FROM salesorder i " +
@@ -52,19 +52,20 @@ public class PickingController extends BaseController<Picking, PickingService, P
                 "                    where ip.delid =  " + data.get("delid") +
                 "                    group by matid) thelf_picked on e.matid= thelf_picked.matid " +
                 "where i.salordid = " + data.get("salordid");
-
+        
         res.put("data", jdbcTemplate.queryForList(sql));
         Salesorder saleOrder = salesOrderService.getBySalordId(((Number) data.get("salordid")).intValue());
-
+        
         Customer customer = customerMapper.selectOne(Wrappers.lambdaQuery(new Customer())
-                .eq(Customer::getSrchterm, saleOrder.getCusref())
-                .eq(Customer::getSaleOrg, saleOrder.getSorg())
-                .eq(Customer::getDistrChannel, saleOrder.getDischannel())
-                .eq(Customer::getDivision, saleOrder.getDivision())
+                        .eq(Customer::getBp, saleOrder.getShiptoparty())
+                // .eq(Customer::getSrchterm, saleOrder.getCusref())
+                // .eq(Customer::getSaleOrg, saleOrder.getSorg())
+                // .eq(Customer::getDistrChannel, saleOrder.getDischannel())
+                // .eq(Customer::getDivision, saleOrder.getDivision())
         );
-
+        
         Integer maxPartDeliveries = customer.getMaxPartDeliveries();
-
+        
         if (maxPartDeliveries != null) {
             Delivery delivery = new Delivery();
             delivery.setStatus(null);
@@ -77,10 +78,10 @@ public class PickingController extends BaseController<Picking, PickingService, P
                 res.put("msg", "该发货单为该订单最后一次发货机会，请全部发货");
             }
         }
-
+        
         return res;
     }
-
+    
     public List<Map<String, Object>> preview0(Map<String, Object> data) {
         String sql = "SELECT e.*, m.*, (e.ordquantity - ifnull(picked.quantity, 0)) maxQuantity " +
                 "FROM salesorder i " +
@@ -98,5 +99,5 @@ public class PickingController extends BaseController<Picking, PickingService, P
                 "where i.salordid = " + data.get("salordid");
         return jdbcTemplate.queryForList(sql);
     }
-
+    
 }

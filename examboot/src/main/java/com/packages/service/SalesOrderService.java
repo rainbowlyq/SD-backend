@@ -2,6 +2,8 @@ package com.packages.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.packages.entity.Delivery;
+import com.packages.entity.Picking;
 import com.packages.entity.Salesorder;
 import com.packages.entity.Sell;
 import com.packages.mapper.SalesorderMapper;
@@ -17,39 +19,45 @@ import org.springframework.util.MultiValueMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 @Service
 public class SalesOrderService extends BaseService<SalesorderMapper, Salesorder> {
     private final JdbcTemplate jdbcTemplate;
     private final SalesorderMapper salesorderMapper;
     private final SellMapper sellMapper;
-    public SalesOrderService(JdbcTemplate jdbcTemplate, SalesorderMapper salesorderMapper,SellMapper sellMapper) {
+    
+    public SalesOrderService(JdbcTemplate jdbcTemplate, SalesorderMapper salesorderMapper, SellMapper sellMapper) {
         this.jdbcTemplate = jdbcTemplate;
         this.salesorderMapper = salesorderMapper;
-        this.sellMapper=sellMapper;
+        this.sellMapper = sellMapper;
     }
-
+    
     public List<Salesorder> findAllSaleOrders(MultiValueMap<String, String> params) {
         QueryWrapper<Salesorder> queryWrapper = new QueryWrapper<>();
-
+        
         // 根据参数构建查询条件
         for (Map.Entry<String, List<String>> entry : params.entrySet()) {
             String paramName = entry.getKey();
             List<String> paramValues = entry.getValue();
-            if(paramValues.size()>0 && paramValues.get(0)!=""){
-                queryWrapper.in(paramName, paramValues.toArray());}
+            if (paramValues.size() > 0 && paramValues.get(0) != "") {
+                queryWrapper.in(paramName, paramValues.toArray());
+            }
         }
         return salesorderMapper.selectList(queryWrapper);
     }
+    
     public Salesorder findSalesOrderByQuoid(String inqid) {
         QueryWrapper<Salesorder> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("salordid", inqid);
         return salesorderMapper.selectOne(queryWrapper);
     }
+    
     public int updateSalesOrder(Salesorder salesorder) {
         UpdateWrapper<Salesorder> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("salordid", salesorder.getSalordid());
         return salesorderMapper.update(salesorder, updateWrapper);
     }
+    
     public int insertSalesOrder(Salesorder salesorder) {
         salesorder.setCreatedate(DateFormat.getTimeNow());
         salesorder.setStatus("ORD");
@@ -62,9 +70,9 @@ public class SalesOrderService extends BaseService<SalesorderMapper, Salesorder>
             return -1; // 或者根据需求返回其他表示插入失败的值
         }
     }
-
+    
     public int updateSell(Sell sell) {
-        int count=0;
+        int count = 0;
         /*
         for (Sell sell : sells) {
             UpdateWrapper<Sell> updateWrapper = new UpdateWrapper<>();
@@ -76,11 +84,12 @@ public class SalesOrderService extends BaseService<SalesorderMapper, Salesorder>
         UpdateWrapper<Sell> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("salordid", sell.getSalordid());
         updateWrapper.eq("matid", sell.getMatid());
-        count+=sellMapper.update(sell, updateWrapper);
+        count += sellMapper.update(sell, updateWrapper);
         return count;
     }
+    
     public int insertSell(Sell sell) {
-        int count=0;
+        int count = 0;
         /*
         for (Sell sell : sells) {
             count+=sellMapper.insert(sell);
@@ -89,7 +98,7 @@ public class SalesOrderService extends BaseService<SalesorderMapper, Salesorder>
         sellMapper.insert(sell);
         return count;
     }
-
+    
     public List<Map<String, Object>> findSalesOrderItemBySalordid(String salordid) {
         String sql = "SELECT e.*, m.* FROM salesorder i " +
                 "INNER JOIN sell e ON i.salordid = e.salordid " +
@@ -99,23 +108,24 @@ public class SalesOrderService extends BaseService<SalesorderMapper, Salesorder>
         List<Map<String, Object>> result = jdbcTemplate.query(sql, new Object[]{salordid}, rowMapper);
         return result;
     }
-    public Map<String, List<Map<String, Object>>> getSearchCombination(){
-        String sql1 = "SELECT DISTINCT sorg FROM salesorder" ;
-        String sql2 = "SELECT DISTINCT dischannel FROM salesorder" ;
-        String sql3 = "SELECT DISTINCT division FROM salesorder" ;
+    
+    public Map<String, List<Map<String, Object>>> getSearchCombination() {
+        String sql1 = "SELECT DISTINCT sorg FROM salesorder";
+        String sql2 = "SELECT DISTINCT dischannel FROM salesorder";
+        String sql3 = "SELECT DISTINCT division FROM salesorder";
         RowMapper<Map<String, Object>> rowMapper = QueryUtils.genericRowMapper();
-        List<Map<String, Object>> sorg =jdbcTemplate.query(sql1, rowMapper);
-        List<Map<String, Object>> dischannel= jdbcTemplate.query(sql2, rowMapper);
-        List<Map<String, Object>> division= jdbcTemplate.query(sql3, rowMapper);
+        List<Map<String, Object>> sorg = jdbcTemplate.query(sql1, rowMapper);
+        List<Map<String, Object>> dischannel = jdbcTemplate.query(sql2, rowMapper);
+        List<Map<String, Object>> division = jdbcTemplate.query(sql3, rowMapper);
         Map<String, List<Map<String, Object>>> combinationMap = new HashMap<>();
-        combinationMap.put("sorg",sorg);
+        combinationMap.put("sorg", sorg);
         combinationMap.put("dischannel", dischannel);
         combinationMap.put("division", division);
         return combinationMap;
     }
-
-    public List<Map<String,Object>> findfulfillment(){
-        String sql="SELECT netvalue as nov,salesorder.currency as cur,salordid,soldtoparty,customer.name as cus,\n" +
+    
+    public List<Map<String, Object>> findfulfillment() {
+        String sql = "SELECT netvalue as nov,salesorder.currency as cur,salordid,soldtoparty,customer.name as cus,\n" +
                 "CASE\n" +
                 "    WHEN delissue = 'NPIC' THEN 'Not Picked Yet'\n" +
                 "    WHEN delissue = 'YPIC' THEN 'Partially Picked'\n" +
@@ -147,7 +157,7 @@ public class SalesOrderService extends BaseService<SalesorderMapper, Salesorder>
         List<Map<String, Object>> result = jdbcTemplate.query(sql, rowMapper);
         return result;
     }
-
+    
     public Salesorder getBySalordId(Integer salordid) {
         return salesorderMapper.selectById(salordid);
     }
@@ -156,14 +166,25 @@ public class SalesOrderService extends BaseService<SalesorderMapper, Salesorder>
     DeliveryService deliveryService;
     @Autowired
     InvoiceService invoiceService;
-
-    public void updateSalesOrderStatus(Salesorder salesorder){
-        Integer salordid=salesorder.getSalordid();
+    @Autowired
+    PickingService pickingService;
+    
+    public void updateSalesOrderStatus(Salesorder salesorder) {
+        Integer salordid = salesorder.getSalordid();
+        salesorder = getBySalordId(salordid);
         salesorder.setDeliveryList(deliveryService.findAllBySalOrdId(salordid));
-        Map<String, String> salordParams = new java.util.HashMap<>();
+        for (Delivery delivery : salesorder.getDeliveryList()) {
+            Picking picking = new Picking();
+            picking.setDelid(delivery.getDelid());
+            delivery.setPickings(pickingService.search(picking));
+        }
+        Map<String, String> salordParams = new HashMap<>();
         salordParams.put("salordid", salordid.toString());
         salesorder.setInvoiceList(invoiceService.findAllInvoices(salordParams));
-        if(salesorder.updateLists()){
+        Map<String, Object> salordParams1 = new HashMap<>();
+        salordParams1.put("salordid", salordid.toString());
+        salesorder.setSellList(sellMapper.selectByMap(salordParams1));
+        if (salesorder.updateLists()) {
             updateSalesOrder(salesorder);
         }
     }

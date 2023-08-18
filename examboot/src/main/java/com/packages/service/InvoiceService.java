@@ -1,19 +1,13 @@
 package com.packages.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.packages.entity.Salesorder;
-import com.packages.entity.Delivery;
-import com.packages.entity.DeliveryItem;
-import com.packages.entity.Invoice;
-import com.packages.entity.MaterialSd;
-import com.packages.mapper.CustomerMapper;
-import com.packages.mapper.DeliveryMapper;
-import com.packages.mapper.InvoiceMapper;
-import com.packages.mapper.MaterialMapper;
+import com.packages.entity.*;
+import com.packages.mapper.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -23,6 +17,9 @@ public class InvoiceService extends BaseService<InvoiceMapper, Invoice> {
     
     @Autowired
     private SalesOrderService salesOrderService;
+    
+    @Autowired
+    private SellService sellService;
     
     @Autowired
     private InvoiceMapper invoiceMapper;
@@ -42,6 +39,9 @@ public class InvoiceService extends BaseService<InvoiceMapper, Invoice> {
     @Autowired
     private MaterialMapper materialMapper;
     
+    @Autowired
+    private PickingMapper pickingMapper;
+    
     //根据1个delivery开1个invoice
     public Invoice createInvoiceByDelId(int delid) {
         Invoice invoice = new Invoice();
@@ -49,16 +49,43 @@ public class InvoiceService extends BaseService<InvoiceMapper, Invoice> {
         invoice.setDelId(delivery.getDelid());
         invoice.setSalOrdId(delivery.getSalordid());
         if (isWholeSalesOrder(delivery)) {
+            // 未分批发货直接使用salesorder的netvalue
             invoice.setNetValue(salesOrderService.getBySalordId(invoice.getSalOrdId()).getNetvalue());
-        }else{
-            //todo
-            int salordid = invoice.getSalOrdId();
-            invoice.setNetValue(salesOrderService.getBySalordId(salordid).getNetvalue()/getDeliveryNum(salordid));
+        } else {
+            // 计算订单折扣比例
+            Sell sell = new Sell();
+            sell.setSalordid(invoice.getSalOrdId());
+            List<Sell> sells = sellService.search(sell);
+            Double beforeDiscount = 0.;
+            for (Sell s : sells) {
+                beforeDiscount += s.getConditonprice() * s.getOrdquantity();
+            }
+            double discountRate = salesOrderService.getBySalordId(invoice.getSalOrdId()).getNetvalue() / beforeDiscount;
+            
+            // 计算均摊后价格
+            Map<String, Object> map = new HashMap<>();
+            map.put("delid", invoice.getDelId());
+            List<Picking> pickings = pickingMapper.selectByMap(map);
+            double netValue = 0.;
+            for (Picking picking : pickings) {
+                sell.setMatid(picking.getMatid());
+                sells = sellService.search(sell);
+                if (sells.size() == 1) {
+                    sell = sells.get(0);
+                    netValue += sell.getConditonprice() * sell.getOrdquantity();
+                } else {
+                    System.out.println("more than 1 sell");
+                    //todo
+                    return invoice;
+                }
+            }
+            invoice.setNetValue(netValue * discountRate);
         }
         // todo
         invoice.setShipToParty(delivery.getShiptoparty());
         invoice.setUpdateDatetime(LocalDateTime.now());
         invoiceMapper.insert(invoice);
+        salesOrderService.updateSalesOrderStatus(salesOrderService.getById(delivery.getSalordid()));
         return invoice;
     }
     
@@ -71,25 +98,23 @@ public class InvoiceService extends BaseService<InvoiceMapper, Invoice> {
         invoice.setNetValue(salesorder.getNetvalue());
         invoice.setUpdateDatetime(LocalDateTime.now());
         invoiceMapper.insert(invoice);
+        salesOrderService.updateSalesOrderStatus(salesorder);
         return invoice;
     }
+    
+    // 根据表单信息创建invoice
     public Invoice createInvoice(Invoice invoice) {
         Salesorder salesorder = salesOrderService.getBySalordId(invoice.getSalOrdId());
         List<Delivery> deliveries = deliveryService.findAllBySalOrdId(invoice.getSalOrdId());
-        if(deliveries.size()==1){
+        // todo
+        if (deliveries.size() == 1) {
             invoice.setDelId(deliveries.get(0).getDelid());
         }
-        // Double netvalue = 0.0;
-        // List<Delivery> deliveries = deliveryService.findAllBySalOrdId();
-        // for (Delivery delivery : deliveries) {
-        //     netvalue += salesOrderService.getBySalordId(delivery.getSalordid()).getNetvalue();
-        // }
         invoice.setUpdateDatetime(LocalDateTime.now());
         invoiceMapper.insert(invoice);
         salesOrderService.updateSalesOrderStatus(salesorder);
         return invoice;
     }
-    
     
     //作废Invoice
     public void invalidateInvoice(Invoice invoice) {
@@ -101,7 +126,6 @@ public class InvoiceService extends BaseService<InvoiceMapper, Invoice> {
     
     public List<Invoice> findAllInvoices(Map<String, String> params) {
         QueryWrapper<Invoice> queryWrapper = new QueryWrapper<>();
-        
         // 根据参数构建查询条件
         for (Map.Entry<String, String> entry : params.entrySet()) {
             String paramName = entry.getKey();
@@ -125,12 +149,12 @@ public class InvoiceService extends BaseService<InvoiceMapper, Invoice> {
         return deliveries.size() == 1;
     }
     
-    public int getDeliveryNum(int salordid){
+    public int getDeliveryNum(int salordid) {
         List<Delivery> deliveries = deliveryService.findAllBySalOrdId(salordid);
         return deliveries.size();
     }
     
-    public Invoice updateProperties(Invoice invoice){
+    public Invoice updateProperties(Invoice invoice) {
         invoice.setShipToPartyCustomer(customerMapper.selectById(invoice.getShipToParty()));
         invoice.setDelivery(deliveryMapper.selectById(invoice.getDelId()));
         DeliveryItem d = new DeliveryItem();

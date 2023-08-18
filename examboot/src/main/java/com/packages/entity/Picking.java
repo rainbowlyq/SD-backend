@@ -14,23 +14,26 @@ import java.time.LocalDate;
 public class Picking {
     @TableId(value = "picid", type = IdType.AUTO)
     private Long picid;
-
+    
     @TableField(value = "delid")
     private Long delid;
-
+    
     @TableField(value = "matid")
     private Integer matid;
-
+    
     @TableField(value = "quantity")
     private Integer quantity;
-
+    
     @TableField(value = "plant")
     private String plant;
-
+    
     @TableField(value = "storageloc")
     private String storageloc;
-
+    
     @TableField(value = "date")
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate date;
+    
+    @TableField(exist = false)
+    double conditionPrice;
 }

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -33,6 +34,8 @@ public class Salesorder {
     private List<Delivery> deliveryList;
     @TableField(exist = false)
     private List<Invoice> invoiceList;
+    @TableField(exist = false)
+    private List<Sell> sellList;
     @TableField(exist = false)
     private final String[] delIssueList = {"NPIC", "PPIC", "APIC", "NSTA", "PSTA", "ASTA"};
     @TableField(exist = false)
@@ -67,19 +70,59 @@ public class Salesorder {
     }
     
     public boolean updateLists() {
-        int deliveryMaxStatus = Collections.max(deliveryList.stream().map(Delivery::getStatus).collect(Collectors.toList()));
-        int deliveryMinStatus = Collections.min(deliveryList.stream().map(Delivery::getStatus).collect(Collectors.toList()));
+        //判断是否存在未发货的商品
+        boolean notPicked = false;
+        int countedItems = 0;
+        for (Sell sell : sellList) {
+            for (Delivery delivery : deliveryList) {
+                for (Picking picking : delivery.getPickings()) {
+                    if (picking.getMatid().equals(sell.getMatid())) {
+                        countedItems += picking.getQuantity();
+                    }
+                }
+            }
+            if (countedItems < sell.getOrdquantity()) {
+                notPicked = true;
+                break;
+            }
+        }
+        
+        //判断是都存在未开票的商品
+        double invoicedAmount = 0;
+        for (Invoice invoice : invoiceList) {
+            invoicedAmount += invoice.getNetValue();
+        }
+        boolean notInvoiced = invoicedAmount < netvalue;
+        
+        List<Integer> deliveryStatusList = deliveryList.stream().map(Delivery::getStatus).collect(Collectors.toList());
+        List<Integer> invoiceStatusList = invoiceList.stream().map(Invoice::getStatus).collect(Collectors.toList());
+        int deliveryMinStatus = 1;
+        int deliveryMaxStatus = 1;
+        int invoiceMaxStatus = 0;
+        int invoiceMinStatus = 0;
+        if (deliveryStatusList.size() > 0) {
+            deliveryMaxStatus = Collections.max(deliveryStatusList);
+            deliveryMinStatus = Collections.min(deliveryStatusList);
+        }
+        if (notPicked) {
+            deliveryMinStatus = 1;
+        }
+        
         String newDelIssue = delIssueList[getIssueIndex(deliveryMinStatus, deliveryMaxStatus)];
+        if (invoiceStatusList.size() > 0) {
+            invoiceMaxStatus = Collections.max(invoiceStatusList);
+            invoiceMinStatus = Collections.min(invoiceStatusList);
+        }
+        if (notInvoiced) {
+            invoiceMinStatus = 0;
+        }
+        String newInvIssue = invIssueList[getIssueIndex(invoiceMinStatus, invoiceMaxStatus)];
         
-        int invoiceMaxStatus = Collections.max(invoiceList.stream().map(Invoice::getStatus).collect(Collectors.toList()));
-        int invoiceMinStatus = Collections.min(invoiceList.stream().map(Invoice::getStatus).collect(Collectors.toList()));
-        String newInvIssue = invIssueList[getIssueIndex(invoiceMinStatus + 1, invoiceMaxStatus + 1)];
-        
-        if(Objects.equals(newDelIssue, delissue) && Objects.equals(newInvIssue, invissue)){
+        if (Objects.equals(newDelIssue, delissue) && Objects.equals(newInvIssue, invissue)) {
             return updateStatus();
-        }else{
-            delissue=newDelIssue;
-            invissue=newInvIssue;
+        } else {
+            delissue = newDelIssue;
+            invissue = newInvIssue;
             updateStatus();
             return true;
         }
