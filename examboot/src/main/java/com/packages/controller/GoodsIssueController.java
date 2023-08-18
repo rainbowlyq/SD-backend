@@ -81,7 +81,7 @@ public class GoodsIssueController extends BaseController<GoodsIssue, GoodsIssueS
                 "                                                                                              m.storageloc =" +
                 "                                                                                              mi.StorageLoc and" +
                 "                                                                                              m.delstorplant =" +
-                "                                                                                              mi.StorageLoc " +
+                "                                                                                              mi.Plant " +
                 "set mi.SchedForDel = mi.SchedForDel - m.quantity";
         jdbcTemplate.update(sql);
     }
