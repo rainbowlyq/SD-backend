@@ -21,7 +21,7 @@ public class Receipt {
     private Double amount;
     
     @TableField(value = "date")
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime datetime;
     
     @TableField(value = "description")
@@ -31,6 +31,6 @@ public class Receipt {
     private Invoice invoice = null;
     
     @TableField(exist = false)
-    private List<DeliveryItem> deliveryItems = null;
+    private List<Picking> items = null;
     
 }

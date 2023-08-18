@@ -169,7 +169,7 @@ public class SalesOrderService extends BaseService<SalesorderMapper, Salesorder>
     @Autowired
     PickingService pickingService;
     
-    public void updateSalesOrderStatus(Salesorder salesorder) {
+    public Salesorder updateSalesOrderStatus(Salesorder salesorder) {
         Integer salordid = salesorder.getSalordid();
         salesorder = getBySalordId(salordid);
         salesorder.setDeliveryList(deliveryService.findAllBySalOrdId(salordid));
@@ -177,15 +177,21 @@ public class SalesOrderService extends BaseService<SalesorderMapper, Salesorder>
             Picking picking = new Picking();
             picking.setDelid(delivery.getDelid());
             delivery.setPickings(pickingService.search(picking));
+            for (Picking pic:delivery.getPickings()) {
+                pickingService.updateProperties(pic);
+            }
         }
         Map<String, String> salordParams = new HashMap<>();
         salordParams.put("salordid", salordid.toString());
-        salesorder.setInvoiceList(invoiceService.findAllInvoices(salordParams));
+        salesorder.setInvoiceList(invoiceService.findAllInvoices(salordParams, true));
         Map<String, Object> salordParams1 = new HashMap<>();
         salordParams1.put("salordid", salordid.toString());
         salesorder.setSellList(sellMapper.selectByMap(salordParams1));
         if (salesorder.updateLists()) {
+            System.out.println(salesorder.getDelissue());
+            System.out.println(salesorder.getInvissue());
             updateSalesOrder(salesorder);
         }
+        return salesorder;
     }
 }

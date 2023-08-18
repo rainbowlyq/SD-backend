@@ -35,5 +35,16 @@ public class Picking {
     private LocalDate date;
     
     @TableField(exist = false)
-    double conditionPrice;
+    private double conditionPrice;
+    
+    @TableField(exist = false)
+    private String currency;
+    
+    @TableField(exist = false)
+    private double weight;
+    
+    @TableField(exist = false)
+    private String weightUnit;
+    
+    
 }

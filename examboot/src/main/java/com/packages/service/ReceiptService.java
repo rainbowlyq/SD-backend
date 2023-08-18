@@ -1,14 +1,15 @@
 package com.packages.service;
 
-import com.packages.entity.DeliveryItem;
-import com.packages.entity.Invoice;
-import com.packages.entity.MaterialSd;
-import com.packages.entity.Receipt;
+import com.packages.entity.*;
 import com.packages.mapper.InvoiceMapper;
 import com.packages.mapper.MaterialMapper;
 import com.packages.mapper.ReceiptMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ReceiptService extends BaseService<ReceiptMapper, Receipt> {
@@ -19,20 +20,18 @@ public class ReceiptService extends BaseService<ReceiptMapper, Receipt> {
     private InvoiceMapper invoiceMapper;
     
     @Autowired
-    private DeliveryItemService deliveryItemService;
-    
-    @Autowired
-    private MaterialMapper materialMapper;
+    private PickingService pickingService;
     
     @Autowired
     private SalesOrderService salesOrderService;
     
     public void createReceipt(Receipt receipt) {
+        receipt.setDatetime(LocalDateTime.now());
         save(receipt);
         Invoice invoice = invoiceService.getById(receipt.getInvId());
         if (receipt.getAmount().equals(invoice.getNetValue())) {
             invoice.setStatus(2);
-            //todo 修改salord status
+            salesOrderService.updateSalesOrderStatus(salesOrderService.getById(invoice.getSalOrdId()));
         }
         invoiceService.saveOrUpdate(invoice);
     }
@@ -45,17 +44,13 @@ public class ReceiptService extends BaseService<ReceiptMapper, Receipt> {
     public Receipt updateProperties(Receipt receipt) {
         Invoice invoice = invoiceMapper.selectById(receipt.getInvId());
         receipt.setInvoice(invoiceService.updateProperties(invoice));
-        DeliveryItem d = new DeliveryItem();
+        Picking d = new Picking();
         d.setDelid(invoice.getDelId());
-        receipt.setDeliveryItems(deliveryItemService.search(d));
-        for (DeliveryItem deliveryItem : receipt.getDeliveryItems()) {
-            deliveryItem.setCurrency(salesOrderService.getBySalordId(invoice.getSalOrdId()).getCurrency());
-            MaterialSd material = materialMapper.selectById(deliveryItem.getMatid());
-            if (material != null) {
-                deliveryItem.setWeight(material.getWeight());
-                deliveryItem.setWeightUnit(material.getWeightunit());
-            }
-        }
+        List<Picking> pickingList=pickingService.search(d);
+        pickingList = pickingList.stream()
+                .map(pic->pickingService.updateProperties(pic))
+                .collect(Collectors.toList());
+        receipt.setItems(pickingList);
         return receipt;
     }
 }

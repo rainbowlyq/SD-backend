@@ -7,10 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class InvoiceService extends BaseService<InvoiceMapper, Invoice> {
@@ -28,7 +26,7 @@ public class InvoiceService extends BaseService<InvoiceMapper, Invoice> {
     private DeliveryService deliveryService;
     
     @Autowired
-    private DeliveryItemService deliveryItemService;
+    private PickingService pickingService;
     
     @Autowired
     private DeliveryMapper deliveryMapper;
@@ -37,15 +35,14 @@ public class InvoiceService extends BaseService<InvoiceMapper, Invoice> {
     private CustomerMapper customerMapper;
     
     @Autowired
-    private MaterialMapper materialMapper;
-    
-    @Autowired
     private PickingMapper pickingMapper;
     
     //根据1个delivery开1个invoice
     public Invoice createInvoiceByDelId(int delid) {
         Invoice invoice = new Invoice();
         Delivery delivery = deliveryService.getById(delid);
+        delivery.setStatus(4);
+        deliveryService.save(delivery);
         invoice.setDelId(delivery.getDelid());
         invoice.setSalOrdId(delivery.getSalordid());
         if (isWholeSalesOrder(delivery)) {
@@ -95,9 +92,15 @@ public class InvoiceService extends BaseService<InvoiceMapper, Invoice> {
         Invoice invoice = new Invoice();
         invoice.setSalOrdId(salOrdId);
         invoice.setShipToParty(salesorder.getShiptoparty());
-        invoice.setNetValue(salesorder.getNetvalue());
+        invoice.setNetValue(getRemaining(salesorder));
         invoice.setUpdateDatetime(LocalDateTime.now());
         invoiceMapper.insert(invoice);
+        for(Delivery delivery:deliveryService.findAllBySalOrdId(salOrdId)){
+            if(delivery.getStatus()<4){
+                delivery.setStatus(4);
+                deliveryService.save(delivery);
+            }
+        }
         salesOrderService.updateSalesOrderStatus(salesorder);
         return invoice;
     }
@@ -105,10 +108,16 @@ public class InvoiceService extends BaseService<InvoiceMapper, Invoice> {
     // 根据表单信息创建invoice
     public Invoice createInvoice(Invoice invoice) {
         Salesorder salesorder = salesOrderService.getBySalordId(invoice.getSalOrdId());
-        List<Delivery> deliveries = deliveryService.findAllBySalOrdId(invoice.getSalOrdId());
         // todo
-        if (deliveries.size() == 1) {
-            invoice.setDelId(deliveries.get(0).getDelid());
+        if (getRemaining(salesorder)==0) {
+            List<Delivery> deliveries = deliveryService.findAllBySalOrdId(invoice.getSalOrdId());
+            for(Delivery delivery:deliveries){
+                delivery.setStatus(4);
+                deliveryService.save(delivery);
+            }
+            if(deliveries.size()==1){
+                invoice.setDelId(deliveries.get(0).getDelid());
+            }
         }
         invoice.setUpdateDatetime(LocalDateTime.now());
         invoiceMapper.insert(invoice);
@@ -137,6 +146,25 @@ public class InvoiceService extends BaseService<InvoiceMapper, Invoice> {
         return invoiceMapper.selectList(queryWrapper);
     }
     
+    public List<Invoice> findAllInvoices(Map<String, String> params, boolean details) {
+        QueryWrapper<Invoice> queryWrapper = new QueryWrapper<>();
+        // 根据参数构建查询条件
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            String paramName = entry.getKey();
+            String paramValue = entry.getValue();
+            if (!Objects.equals(paramValue, "")) {
+                queryWrapper.eq(paramName, paramValue);
+            }
+        }
+        List<Invoice> invoices = invoiceMapper.selectList(queryWrapper);
+        if (details) {
+            invoices = invoices.stream()
+                    .map(this::updateProperties)
+                    .collect(Collectors.toList());
+        }
+        return invoices;
+    }
+    
     // public List<Delivery> getBillingDueList(){
     //
     //
@@ -156,20 +184,33 @@ public class InvoiceService extends BaseService<InvoiceMapper, Invoice> {
     
     public Invoice updateProperties(Invoice invoice) {
         invoice.setShipToPartyCustomer(customerMapper.selectById(invoice.getShipToParty()));
-        invoice.setDelivery(deliveryMapper.selectById(invoice.getDelId()));
-        DeliveryItem d = new DeliveryItem();
-        d.setDelid(invoice.getDelId());
-        invoice.setDeliveryItems(deliveryItemService.search(d));
-        invoice.setSalesorder(salesOrderService.getBySalordId(invoice.getSalOrdId()));
-        for (DeliveryItem deliveryItem : invoice.getDeliveryItems()) {
-            deliveryItem.setCurrency(salesOrderService.getBySalordId(invoice.getSalOrdId()).getCurrency());
-            MaterialSd material = materialMapper.selectById(deliveryItem.getMatid());
-            if (material != null) {
-                deliveryItem.setWeight(material.getWeight());
-                deliveryItem.setWeightUnit(material.getWeightunit());
-            }
+        Salesorder salesorder = salesOrderService.getById(invoice.getSalOrdId());
+        invoice.setSoldToPartyCustomer(customerMapper.selectById(salesorder.getSoldtoparty()));
+        if(invoice.getDelId()!=null){
+            invoice.setDelivery(deliveryMapper.selectById(invoice.getDelId()));
+            Picking p = new Picking();
+            p.setDelid(invoice.getDelId());
+            List<Picking> pickingList = pickingService.search(p);
+            pickingList = pickingList.stream()
+                    .map(pic -> pickingService.updateProperties(pic))
+                    .collect(Collectors.toList());
+            invoice.setPickings(pickingList);
         }
         return invoice;
+    }
+    
+    public double getRemaining(Salesorder salesorder) {
+        salesorder = salesOrderService.getById(salesorder);
+        Invoice invoice = new Invoice();
+        invoice.setSalOrdId(salesorder.getSalordid());
+        List<Invoice> invoices = search(invoice);
+        Double invoiced = 0.;
+        for (Invoice i : invoices) {
+            if(i.getStatus()>0){
+                invoiced += i.getNetValue();
+            }
+        }
+        return salesorder.getNetvalue() - invoiced;
     }
     
 }

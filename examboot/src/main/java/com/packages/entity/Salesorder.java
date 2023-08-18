@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 
+import javax.persistence.ExcludeDefaultListeners;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -45,26 +46,28 @@ public class Salesorder {
         if ("NPIC".equals(delissue) && "NINV".equals(invissue)) {
             //status=ORD
             return !"ORD".equals(status);
-        } else if (!"NPIC".equals(delissue) && !"ASTA".equals(delissue)) {
+        } else if ((!"NPIC".equals(delissue)) && (!"ASTA".equals(delissue))) {
             //status=DLV
             boolean res = !"DLV".equals(status);
             if (res) {
                 status = "DLV";
             }
             return res;
-        } else if (!"NINV".equals(invissue) && !"AREC".equals(invissue)) {
+        } else if (!"AREC".equals(invissue)) {
             //status=INV
             boolean res = !"INV".equals(status);
             if (res) {
                 status = "INV";
             }
             return res;
-        } else if ("ASTA".equals(delissue) && "AREC".equals(invissue)) {
+        } else if ("ASTA".equals(delissue)) {
             //status=FIN
             status = "FIN";
             return true;
         } else {
             System.out.println("ISSUE ERROR");
+            System.out.println(delissue);
+            System.out.println(invissue);
             return false;
         }
     }
@@ -90,12 +93,15 @@ public class Salesorder {
         //判断是都存在未开票的商品
         double invoicedAmount = 0;
         for (Invoice invoice : invoiceList) {
-            invoicedAmount += invoice.getNetValue();
+            if (invoice.getStatus() > 0) {
+                invoicedAmount += invoice.getNetValue();
+            }
         }
         boolean notInvoiced = invoicedAmount < netvalue;
         
         List<Integer> deliveryStatusList = deliveryList.stream().map(Delivery::getStatus).collect(Collectors.toList());
         List<Integer> invoiceStatusList = invoiceList.stream().map(Invoice::getStatus).collect(Collectors.toList());
+        invoiceStatusList = invoiceStatusList.stream().filter(status -> status > 0).collect(Collectors.toList());
         int deliveryMinStatus = 1;
         int deliveryMaxStatus = 1;
         int invoiceMaxStatus = 0;
@@ -116,11 +122,20 @@ public class Salesorder {
         if (notInvoiced) {
             invoiceMinStatus = 0;
         }
-        String newInvIssue = invIssueList[getIssueIndex(invoiceMinStatus, invoiceMaxStatus)];
-        
+        System.out.println(notPicked);
+        System.out.println(notInvoiced);
+        System.out.println(deliveryMinStatus);
+        System.out.println(deliveryMinStatus);
+        System.out.println(invoiceMinStatus);
+        System.out.println(invoiceMaxStatus);
+        String newInvIssue = invIssueList[getIssueIndex(invoiceMinStatus + 1, invoiceMaxStatus + 1)];
+        System.out.println(newDelIssue);
+        System.out.println(newInvIssue);
         if (Objects.equals(newDelIssue, delissue) && Objects.equals(newInvIssue, invissue)) {
+            System.out.println(111);
             return updateStatus();
         } else {
+            System.out.println(222);
             delissue = newDelIssue;
             invissue = newInvIssue;
             updateStatus();

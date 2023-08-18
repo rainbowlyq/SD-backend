@@ -45,6 +45,9 @@ public class Invoice {
     private LocalDateTime updateDatetimeEnd;
     
     @TableField(exist = false)
+    private Customer soldToPartyCustomer;
+    
+    @TableField(exist = false)
     private Customer shipToPartyCustomer;
     
     @TableField(exist = false)
@@ -54,6 +57,6 @@ public class Invoice {
     private Salesorder salesorder;
     
     @TableField(exist = false)
-    private List<DeliveryItem> deliveryItems = null;
+    private List<Picking> pickings = null;
     
 }
