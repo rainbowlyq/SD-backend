@@ -128,10 +128,10 @@ public class SalesOrderService extends BaseService<SalesorderMapper, Salesorder>
         String sql = "SELECT netvalue as nov,salesorder.currency as cur,salordid,soldtoparty,customer.name as cus,\n" +
                 "CASE\n" +
                 "    WHEN delissue = 'NPIC' THEN 'Not Picked Yet'\n" +
-                "    WHEN delissue = 'YPIC' THEN 'Partially Picked'\n" +
+                "    WHEN delissue = 'PPIC' THEN 'Partially Picked'\n" +
                 "    WHEN delissue = 'APIC' THEN 'All Picked'\n" +
                 "    WHEN delissue = 'NSTA' THEN 'Not yet Started'\n" +
-                "    WHEN delissue = 'YSTA' THEN 'Partially Started'\n" +
+                "    WHEN delissue = 'PSTA' THEN 'Partially Started'\n" +
                 "    WHEN delissue = 'ASTA' THEN 'All Started'\n" +
                 "\t\t\t\tELSE delissue\n" +
                 "\t\t\t\tEND AS delissue,\n" +
