@@ -125,7 +125,7 @@ public class ChartService {
                 "FROM (\n" +
                 "  SELECT\n" +
                 "    salesorder.salordid,\n" +
-                "    CURRENT_DATE - DATE(goods_issue.date) AS compare\n" +
+                "    reqdelivdate - DATE(goods_issue.date) AS compare\n" +
                 "  FROM\n" +
                 "    salesorder\n" +
                 "    JOIN delivery ON salesorder.salordid = delivery.salordid\n" +
