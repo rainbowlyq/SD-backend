@@ -10,6 +10,10 @@ import com.packages.service.SalesOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
 @RestController
 @RequestMapping("/receipt")
 public class ReceiptController extends BaseController<Receipt, ReceiptService, ReceiptMapper> {
@@ -17,6 +21,8 @@ public class ReceiptController extends BaseController<Receipt, ReceiptService, R
     ReceiptService receiptService;
     @Autowired
     SalesOrderService salesOrderService;
+    @Autowired
+    ReceiptMapper receiptMapper;
     
     @PostMapping("/create")
     public Receipt createReceiptByInvoice(@RequestBody Receipt receipt) {
@@ -36,11 +42,9 @@ public class ReceiptController extends BaseController<Receipt, ReceiptService, R
         return receiptService.updateProperties(receipt);
     }
     
-    @GetMapping("/test/{salordid}")
-    public void test(@PathVariable Integer salordid) {
-        Salesorder salesorder = salesOrderService.getBySalordId(salordid);
-        System.out.println(salesorder.getDelissue() + salesorder.getInvissue());
-        salesorder = salesOrderService.updateSalesOrderStatus(salesorder);
-        System.out.println(salesorder.getDelissue() + salesorder.getInvissue());
+    @PostMapping("/findAll")
+    public List<Receipt> findAll(@RequestBody Receipt receipt){
+        System.out.println(receiptMapper.findAll(receipt.getStartDate(),receipt.getEndDate()));
+        return receiptMapper.findAll(receipt.getStartDate(),receipt.getEndDate());
     }
 }

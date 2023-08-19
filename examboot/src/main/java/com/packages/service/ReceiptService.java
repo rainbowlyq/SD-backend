@@ -20,13 +20,10 @@ public class ReceiptService extends BaseService<ReceiptMapper, Receipt> {
     private InvoiceMapper invoiceMapper;
     
     @Autowired
-    private PickingService pickingService;
-    
-    @Autowired
     private SalesOrderService salesOrderService;
     
     public Receipt createReceipt(Receipt receipt) {
-        receipt.setDatetime(LocalDateTime.now());
+        receipt.setDate(LocalDateTime.now());
         save(receipt);
         Invoice invoice = invoiceService.getById(receipt.getInvId());
         if (receipt.getAmount().equals(invoice.getNetValue())) {
@@ -45,13 +42,14 @@ public class ReceiptService extends BaseService<ReceiptMapper, Receipt> {
     public Receipt updateProperties(Receipt receipt) {
         Invoice invoice = invoiceMapper.selectById(receipt.getInvId());
         receipt.setInvoice(invoiceService.updateProperties(invoice));
-        Picking d = new Picking();
-        d.setDelid(invoice.getDelId());
-        List<Picking> pickingList=pickingService.search(d);
-        pickingList = pickingList.stream()
-                .map(pic->pickingService.updateProperties(pic))
-                .collect(Collectors.toList());
-        receipt.setItems(pickingList);
+        // Picking d = new Picking();
+        // d.setDelid(invoice.getDelId());
+        // List<Picking> pickingList=pickingService.search(d);
+        // pickingList = pickingList.stream()
+        //         .map(pic->pickingService.updateProperties(pic))
+        //         .collect(Collectors.toList());
+        // receipt.setItems(pickingList);
+        
         return receipt;
     }
 }

@@ -5,32 +5,38 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
-
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 public class Receipt {
     @TableId(value = "recid", type = IdType.AUTO)
     private Integer recId;
-    
     @TableField(value = "invid")
     private Integer invId;
-    
-    @TableField(value = "amount")
     private Double amount;
-    
-    @TableField(value = "date")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime datetime;
-    
-    @TableField(value = "description")
+    private LocalDateTime date;
     private String description;
     
     @TableField(exist = false)
     private Invoice invoice = null;
     
     @TableField(exist = false)
-    private List<Picking> items = null;
+    private Integer salordid;
+    
+    @TableField(exist = false)
+    private String currency;
+    
+    @TableField(exist = false)
+    private Integer soldtoparty;
+    
+    @TableField(exist = false)
+    private String soldtopartyName;
+    
+    @TableField(exist = false)
+    private String startDate;
+    
+    @TableField(exist = false)
+    private String endDate;
     
 }
