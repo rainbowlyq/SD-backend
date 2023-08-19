@@ -28,9 +28,9 @@ public class ReceiptService extends BaseService<ReceiptMapper, Receipt> {
         Invoice invoice = invoiceService.getById(receipt.getInvId());
         if (receipt.getAmount().equals(invoice.getNetValue())) {
             invoice.setStatus(2);
-            salesOrderService.updateSalesOrderStatus(salesOrderService.getById(invoice.getSalOrdId()));
+            invoiceService.saveOrUpdate(invoice);
         }
-        invoiceService.saveOrUpdate(invoice);
+        salesOrderService.updateSalesOrderStatus(salesOrderService.getById(invoice.getSalOrdId()));
         return receipt;
     }
     
@@ -42,14 +42,6 @@ public class ReceiptService extends BaseService<ReceiptMapper, Receipt> {
     public Receipt updateProperties(Receipt receipt) {
         Invoice invoice = invoiceMapper.selectById(receipt.getInvId());
         receipt.setInvoice(invoiceService.updateProperties(invoice));
-        // Picking d = new Picking();
-        // d.setDelid(invoice.getDelId());
-        // List<Picking> pickingList=pickingService.search(d);
-        // pickingList = pickingList.stream()
-        //         .map(pic->pickingService.updateProperties(pic))
-        //         .collect(Collectors.toList());
-        // receipt.setItems(pickingList);
-        
         return receipt;
     }
 }

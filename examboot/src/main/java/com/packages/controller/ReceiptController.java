@@ -4,14 +4,10 @@ import com.packages.entity.Invoice;
 import com.packages.entity.Receipt;
 import com.packages.entity.Salesorder;
 import com.packages.mapper.ReceiptMapper;
-import com.packages.service.InvoiceService;
 import com.packages.service.ReceiptService;
 import com.packages.service.SalesOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -44,7 +40,11 @@ public class ReceiptController extends BaseController<Receipt, ReceiptService, R
     
     @PostMapping("/findAll")
     public List<Receipt> findAll(@RequestBody Receipt receipt){
-        System.out.println(receiptMapper.findAll(receipt.getStartDate(),receipt.getEndDate()));
         return receiptMapper.findAll(receipt.getStartDate(),receipt.getEndDate());
+    }
+    
+    @GetMapping("/test/{salordid}")
+    public void updatestatus(@PathVariable Integer salordid){
+        salesOrderService.updateSalesOrderStatus(salesOrderService.getById(salordid));
     }
 }

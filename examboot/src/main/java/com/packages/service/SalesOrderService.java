@@ -2,10 +2,7 @@ package com.packages.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.packages.entity.Delivery;
-import com.packages.entity.Picking;
-import com.packages.entity.Salesorder;
-import com.packages.entity.Sell;
+import com.packages.entity.*;
 import com.packages.mapper.SalesorderMapper;
 import com.packages.mapper.SellMapper;
 import com.packages.utils.DateFormat;
@@ -19,6 +16,7 @@ import org.springframework.util.MultiValueMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class SalesOrderService extends BaseService<SalesorderMapper, Salesorder> {
@@ -167,7 +165,7 @@ public class SalesOrderService extends BaseService<SalesorderMapper, Salesorder>
     @Autowired
     PickingService pickingService;
     
-    public Salesorder updateSalesOrderStatus(Salesorder salesorder) {
+    public Salesorder setLists(Salesorder salesorder) {
         Integer salordid = salesorder.getSalordid();
         salesorder = getBySalordId(salordid);
         salesorder.setDeliveryList(deliveryService.findAllBySalOrdId(salordid));
@@ -175,16 +173,21 @@ public class SalesOrderService extends BaseService<SalesorderMapper, Salesorder>
             Picking picking = new Picking();
             picking.setDelid(delivery.getDelid());
             delivery.setPickings(pickingService.search(picking));
-            for (Picking pic:delivery.getPickings()) {
+            for (Picking pic : delivery.getPickings()) {
                 pickingService.updateProperties(pic);
             }
         }
         Map<String, String> salordParams = new HashMap<>();
         salordParams.put("salordid", salordid.toString());
-        salesorder.setInvoiceList(invoiceService.findAllInvoices(salordParams, true));
+        List<Invoice> invoices = invoiceService.findAllInvoices(salordParams, true);
+        salesorder.setInvoiceList(invoices.stream().filter(i -> i.getStatus() > 0).collect(Collectors.toList()));
         Map<String, Object> salordParams1 = new HashMap<>();
         salordParams1.put("salordid", salordid.toString());
         salesorder.setSellList(sellMapper.selectByMap(salordParams1));
+        return salesorder;
+    }
+    public Salesorder updateSalesOrderStatus(Salesorder salesorder) {
+        salesorder=setLists(salesorder);
         if (salesorder.updateLists()) {
             updateSalesOrder(salesorder);
         }

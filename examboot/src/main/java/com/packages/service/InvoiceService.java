@@ -37,6 +37,9 @@ public class InvoiceService extends BaseService<InvoiceMapper, Invoice> {
     @Autowired
     private PickingMapper pickingMapper;
     
+    @Autowired
+    private InvoiceService invoiceService;
+    
     //根据1个delivery开1个invoice
     public Invoice createInvoiceByDelId(int delid) {
         Invoice invoice = new Invoice();
@@ -80,7 +83,7 @@ public class InvoiceService extends BaseService<InvoiceMapper, Invoice> {
         // todo
         invoice.setShipToParty(delivery.getShiptoparty());
         invoice.setUpdateDatetime(LocalDateTime.now());
-        if(invoice.getNetValue()>0){
+        if (invoice.getNetValue() > 0) {
             invoiceMapper.insert(invoice);
             salesOrderService.updateSalesOrderStatus(salesOrderService.getById(delivery.getSalordid()));
         }
@@ -110,7 +113,8 @@ public class InvoiceService extends BaseService<InvoiceMapper, Invoice> {
     public Invoice createInvoice(Invoice invoice) {
         Salesorder salesorder = salesOrderService.getBySalordId(invoice.getSalOrdId());
         // todo
-        if (getRemaining(salesorder) == 0) {
+        if (getRemaining(salesorder) - invoice.getNetValue() < 0.01) {
+            invoice.setNetValue(getRemaining(salesorder));
             List<Delivery> deliveries = deliveryService.findAllBySalOrdId(invoice.getSalOrdId());
             for (Delivery delivery : deliveries) {
                 delivery.setStatus(4);
@@ -131,6 +135,25 @@ public class InvoiceService extends BaseService<InvoiceMapper, Invoice> {
         invoice.setStatus(0);
         invoiceMapper.updateById(invoice);
         invoice = updateProperties(invoice);
+        if (invoice.getDelId() != null) {
+            Delivery delivery = invoice.getDelivery();
+            if (delivery.getStatus() == 4) {
+                delivery.setStatus(3);
+                deliveryService.updateById(delivery);
+            }
+        } else {
+            Salesorder salesorder = invoice.getSalesorder();
+            salesorder = salesOrderService.setLists(salesorder);
+            List<Long> invoicedDelIds = salesorder.getInvoiceList().stream().map(Invoice::getDelId).filter(Objects::nonNull).collect(Collectors.toList());
+            for (Delivery delivery : salesorder.getDeliveryList()) {
+                if(!invoicedDelIds.contains(delivery.getDelid())){
+                    if(delivery.getStatus()==4){
+                        delivery.setStatus(3);
+                        deliveryService.updateById(delivery);
+                    }
+                }
+            }
+        }
         salesOrderService.updateSalesOrderStatus(invoice.getSalesorder());
     }
     

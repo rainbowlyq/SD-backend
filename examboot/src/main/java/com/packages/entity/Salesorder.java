@@ -75,8 +75,8 @@ public class Salesorder {
     public boolean updateLists() {
         //判断是否存在未发货的商品
         boolean notPicked = false;
-        int countedItems = 0;
         for (Sell sell : sellList) {
+            int countedItems = 0;
             for (Delivery delivery : deliveryList) {
                 for (Picking picking : delivery.getPickings()) {
                     if (picking.getMatid().equals(sell.getMatid())) {
@@ -151,7 +151,7 @@ public class Salesorder {
         } else if (min == 1 && max > 1) {
             return 1;
         } else {
-            //or3
+            //or 3
             return 2;
         }
     }
