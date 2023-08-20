@@ -21,7 +21,7 @@ public class Invoice {
     private Long delId;
     
     @TableField(value = "salordid")
-    private int salOrdId;
+    private Integer salOrdId;
     
     @TableField(value = "shiptoparty")
     private String shipToParty;
@@ -30,7 +30,7 @@ public class Invoice {
     private Double netValue;
     
     @TableField(value = "status")
-    private int status = 1;
+    private Integer status;
     
     @TableField(value = "update_datetime")
     @JsonFormat(pattern = "yyyy-MM-dd hh:mm:ss")

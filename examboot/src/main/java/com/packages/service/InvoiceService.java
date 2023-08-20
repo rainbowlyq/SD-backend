@@ -37,12 +37,10 @@ public class InvoiceService extends BaseService<InvoiceMapper, Invoice> {
     @Autowired
     private PickingMapper pickingMapper;
     
-    @Autowired
-    private InvoiceService invoiceService;
-    
     //根据1个delivery开1个invoice
     public Invoice createInvoiceByDelId(int delid) {
         Invoice invoice = new Invoice();
+        invoice.setStatus(1);
         Delivery delivery = deliveryService.getById(delid);
         delivery.setStatus(4);
         deliveryMapper.updateById(delivery);
@@ -68,11 +66,13 @@ public class InvoiceService extends BaseService<InvoiceMapper, Invoice> {
         List<Picking> pickings = pickingMapper.selectByMap(map);
         double netValue = 0.;
         for (Picking picking : pickings) {
-            sell.setMatid(picking.getMatid());
-            sells = sellService.search(sell);
+            Sell s = new Sell();
+            s.setSalordid(invoice.getSalOrdId());
+            s.setMatid(picking.getMatid());
+            sells = sellService.search(s);
             if (sells.size() == 1) {
                 sell = sells.get(0);
-                netValue += sell.getConditonprice() * sell.getOrdquantity();
+                netValue += sell.getConditonprice() * picking.getQuantity();
             } else {
                 System.out.println("more than 1 sell");
                 return invoice;
@@ -94,6 +94,7 @@ public class InvoiceService extends BaseService<InvoiceMapper, Invoice> {
     public Invoice createInvoiceBySalOrdId(int salOrdId) {
         Salesorder salesorder = salesOrderService.getBySalordId(salOrdId);
         Invoice invoice = new Invoice();
+        invoice.setStatus(1);
         invoice.setSalOrdId(salOrdId);
         invoice.setShipToParty(salesorder.getShiptoparty());
         invoice.setNetValue(getRemaining(salesorder));
@@ -147,7 +148,7 @@ public class InvoiceService extends BaseService<InvoiceMapper, Invoice> {
             List<Long> invoicedDelIds = salesorder.getInvoiceList().stream().map(Invoice::getDelId).filter(Objects::nonNull).collect(Collectors.toList());
             for (Delivery delivery : salesorder.getDeliveryList()) {
                 if(!invoicedDelIds.contains(delivery.getDelid())){
-                    if(delivery.getStatus()==4){
+                    if(delivery.getStatus()>=4){
                         delivery.setStatus(3);
                         deliveryService.updateById(delivery);
                     }
@@ -189,11 +190,6 @@ public class InvoiceService extends BaseService<InvoiceMapper, Invoice> {
         return invoices;
     }
     
-    // public List<Delivery> getBillingDueList(){
-    //
-    //
-    // }
-    
     // 检查delivery是否属于分批发货
     public boolean isWholeSalesOrder(Delivery delivery) {
         int salordid = delivery.getSalordid();
@@ -209,6 +205,7 @@ public class InvoiceService extends BaseService<InvoiceMapper, Invoice> {
     public Invoice updateProperties(Invoice invoice) {
         invoice.setShipToPartyCustomer(customerMapper.selectById(invoice.getShipToParty()));
         Salesorder salesorder = salesOrderService.getById(invoice.getSalOrdId());
+        invoice.setSalesorder(salesorder);
         invoice.setSoldToPartyCustomer(customerMapper.selectById(salesorder.getSoldtoparty()));
         if (invoice.getDelId() != null) {
             invoice.setDelivery(deliveryMapper.selectById(invoice.getDelId()));
@@ -236,6 +233,5 @@ public class InvoiceService extends BaseService<InvoiceMapper, Invoice> {
         }
         return salesorder.getNetvalue() - invoiced;
     }
-    
 }
 
