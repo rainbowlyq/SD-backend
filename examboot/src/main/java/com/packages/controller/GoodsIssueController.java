@@ -31,7 +31,10 @@ public class GoodsIssueController extends BaseController<GoodsIssue, GoodsIssueS
 
     @PostMapping("/preview")
     public GoodsIssue preview(@RequestBody GoodsIssue gi) {
-        GoodsIssue res = service.getOne(Wrappers.lambdaQuery(new GoodsIssue()), false);
+        if(gi.getDate()==null){
+            gi.setDate(LocalDate.now());
+        }
+        GoodsIssue res = service.getOne(Wrappers.lambdaQuery(gi), false);
         if (res == null) {
             res = new GoodsIssue();
             res.setDelid(gi.getDelid());

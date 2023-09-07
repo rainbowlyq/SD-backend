@@ -94,6 +94,7 @@ public class DeliveryService extends BaseService<DeliveryMapper, Delivery> {
     
     @Override
     public void deleteById(Delivery delivery) {
+        Salesorder saleorder = salesOrderService.getById(getById(delivery.getDelid()).getSalordid());
         Long delid = delivery.getDelid();
         if (delid == null) {
             return;
@@ -117,7 +118,6 @@ public class DeliveryService extends BaseService<DeliveryMapper, Delivery> {
         deleteGi.setDelid(delid);
         giService.remove(Wrappers.query(deleteGi));
         
-        Salesorder saleorder = salesOrderService.getById(getById(delivery.getDelid()).getSalordid());
         salesOrderService.updateSalesOrderStatus(saleorder);
     }
     
